@@ -12,7 +12,7 @@
 		<Version Condition="'$(CURRENT_VERSION)' == ''">0.0.1</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
-		<PackageVersion>$(Version)-prerelease</PackageVersion>
+		<PackageVersion>$(Version)</PackageVersion>
 		<InformationalVersion Condition="'$(GITHUB_SHA)' != ''">$(GITHUB_SHA)</InformationalVersion>
 		<InformationalVersion Condition="'$(GITHUB_SHA)' == ''">DevBuild</InformationalVersion>
 		<PackageReleaseNotes>$(LAST_COMMIT_MESSAGE)</PackageReleaseNotes>
