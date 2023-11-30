@@ -3626,7 +3626,7 @@ namespace ClosedXML.Excel
             using var stream = vmlDrawingPart.GetStream(FileMode.OpenOrCreate);
             CopyStream(stream, ms);
             stream.Position = 0;
-            var writer = new XmlTextWriter(stream, Encoding.UTF8);
+            using var writer = new XmlTextWriter(stream, Encoding.UTF8);
 
             writer.WriteStartElement("xml");
 
