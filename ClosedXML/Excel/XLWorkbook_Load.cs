@@ -24,6 +24,7 @@ namespace ClosedXML.Excel
     #region
 
     using Ap;
+    using ClosedXML.Excel.CalcEngine;
     using Drawings;
     using Op;
     using System.Drawing;
@@ -1052,6 +1053,13 @@ namespace ClosedXML.Excel
                 if (definedName.Hidden != null) visible = !BooleanValue.ToBoolean(definedName.Hidden);
                 if (name == "_xlnm.Print_Area")
                 {
+                    // TODO: CellRangeReference.GetValue returns the value of the first cell instead of a range. => parameterize XlCalcEngine and make new method that does not do this conversion but returns a range.
+                    //  there is still the problem of multiple areas (or functions that return areas) splitted via ','. Check how parse/evaluate can be adapted to consider additional ranges too.
+                    //  check how to do either evaluation or not if there is no function. Sadly there is no leading '=' to make the choice.
+                    var calcEngine = new XLCalcEngine(this) { IdentifierChars = new[] { '$', ':', '!' } };
+                    //var expression = calcEngine.Parse();
+                    var evaluationResult = calcEngine.Evaluate(definedName.Text);
+
                     var fixedNames = validateDefinedNames(definedName.Text.Split(','));
                     foreach (string area in fixedNames)
                     {
@@ -1099,7 +1107,7 @@ namespace ClosedXML.Excel
             }
         }
 
-        private static Regex definedNameRegex = new Regex(@"\A'.*'!.*\z", RegexOptions.Compiled);
+        private static readonly Regex definedNameRegex = new Regex(@"\A('.*'|[^ ]+)!.*\z", RegexOptions.Compiled);
 
         private IEnumerable<String> validateDefinedNames(IEnumerable<String> definedNames)
         {

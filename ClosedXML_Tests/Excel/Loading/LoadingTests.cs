@@ -54,6 +54,18 @@ namespace ClosedXML_Tests.Excel
         }
 
         [Test]
+        public void CanLoadAndSavePrintArea()
+        {
+            using var stream = TestHelper.GetStreamFromResource(TestHelper.GetResourcePath(@"TryToLoad\PrintArea.xlsx"));
+            using var wb = new XLWorkbook(stream);
+            //var ws = wb.Worksheets.First();
+            //Assert.AreEqual("Author:\r\nbla", ws.Cell("A3").GetComment().Text);
+
+            using var ms = new MemoryStream();
+            wb.SaveAs(ms, true);
+        }
+
+        [Test]
         public void CanLoadAndSaveFileWithMismatchingSheetIdAndRelId()
         {
             // This file's workbook.xml contains:
