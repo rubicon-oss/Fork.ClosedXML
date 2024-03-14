@@ -5,8 +5,9 @@ namespace ClosedXML.Excel
 {
     internal class XLPrintAreas : IXLPrintAreas
     {
-        List<IXLRange> ranges = new List<IXLRange>();
+        private List<string> ranges = new List<string>();
         private XLWorksheet worksheet;
+
         public XLPrintAreas(XLWorksheet worksheet)
         {
             this.worksheet = worksheet;
@@ -25,25 +26,30 @@ namespace ClosedXML.Excel
 
         public void Add(int firstCellRow, int firstCellColumn, int lastCellRow, int lastCellColumn)
         {
-            ranges.Add(worksheet.Range(firstCellRow, firstCellColumn, lastCellRow, lastCellColumn));
+            ranges.Add(worksheet.Range(firstCellRow, firstCellColumn, lastCellRow, lastCellColumn).ToString());
+        }
+
+        public void AddExpression(string expression)
+        {
+            ranges.Add(expression);
         }
 
         public void Add(string rangeAddress)
         {
-            ranges.Add(worksheet.Range(rangeAddress));
+            ranges.Add(worksheet.Range(rangeAddress).ToString());
         }
 
         public void Add(string firstCellAddress, string lastCellAddress)
         {
-            ranges.Add(worksheet.Range(firstCellAddress, lastCellAddress));
+            ranges.Add(worksheet.Range(firstCellAddress, lastCellAddress).ToString());
         }
 
         public void Add(IXLAddress firstCellAddress, IXLAddress lastCellAddress)
         {
-            ranges.Add(worksheet.Range(firstCellAddress, lastCellAddress));
+            ranges.Add(worksheet.Range(firstCellAddress, lastCellAddress).ToString());
         }
 
-        public IEnumerator<IXLRange> GetEnumerator()
+        public IEnumerator<string> GetEnumerator()
         {
             return ranges.GetEnumerator();
         }

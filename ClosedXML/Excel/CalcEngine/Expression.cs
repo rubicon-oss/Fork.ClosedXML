@@ -11,15 +11,6 @@ namespace ClosedXML.Excel.CalcEngine
     internal abstract class ExpressionBase
     {
         public abstract string LastParseItem { get; }
-
-        // TODO: make virtual and move down
-        //{
-        //    if (_token.Type != TKTYPE.LITERAL)
-        //    {
-        //        throw new ArgumentException("Bad expression.");
-        //    }
-        //    return _token.Value;
-        //}
     }
 
     /// <summary>

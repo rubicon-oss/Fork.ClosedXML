@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ClosedXML.Excel
 {
-    public interface IXLPrintAreas: IEnumerable<IXLRange>
+    public interface IXLPrintAreas : IEnumerable<string>
     {
         /// <summary>Removes the print areas from the worksheet.</summary>
         void Clear();
@@ -14,6 +14,10 @@ namespace ClosedXML.Excel
         /// <param name="lastCellRow">    The last cell row.</param>
         /// <param name="lastCellColumn"> The last cell column.</param>
         void Add(Int32 firstCellRow, Int32 firstCellColumn, Int32 lastCellRow, Int32 lastCellColumn);
+
+        /// <summary>Adds an expression to the print areas.</summary>
+        /// <param name="rangeAddress">The range expression to add.</param>
+        void AddExpression(string expression);
 
         /// <summary>Adds a range to the print areas.</summary>
         /// <param name="rangeAddress">The range address to add.</param>

@@ -732,15 +732,17 @@ namespace ClosedXML.Excel
                     var definedNameText = worksheet.PageSetup.PrintAreas.Aggregate(String.Empty,
                         (current, printArea) =>
                             current +
-                            ("'" + worksheetName + "'!" +
-                             printArea.RangeAddress.
-                                 FirstAddress.ToStringFixed(
-                                     XLReferenceStyle.A1) +
-                             ":" +
-                             printArea.RangeAddress.
-                                 LastAddress.ToStringFixed(
-                                     XLReferenceStyle.A1) +
-                             ","));
+                            printArea +
+                             // TODO: do this when adding ranges to PrintArea
+                             //("'" + worksheetName + "'!" +
+                             // printArea.RangeAddress.
+                             //     FirstAddress.ToStringFixed(
+                             //         XLReferenceStyle.A1) +
+                             // ":" +
+                             // printArea.RangeAddress.
+                             //     LastAddress.ToStringFixed(
+                             //         XLReferenceStyle.A1) +
+                             ",");
                     definedName.Text = definedNameText.Substring(0, definedNameText.Length - 1);
                     definedNames.AppendChild(definedName);
                 }
@@ -4527,7 +4529,6 @@ namespace ClosedXML.Excel
                 }
             }
 
-
             var exlst = from c in xlWorksheet.ConditionalFormats where c.ConditionalFormatType == XLConditionalFormatType.DataBar && c.Colors.Count > 1 && typeof(IXLConditionalFormat).IsAssignableFrom(c.GetType()) select c;
             if (exlst != null && exlst.Count() > 0)
             {
@@ -4579,7 +4580,6 @@ namespace ClosedXML.Excel
                     }
                 }
             }
-
 
             #endregion Conditional Formatting
 

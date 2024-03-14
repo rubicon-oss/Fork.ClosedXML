@@ -68,7 +68,7 @@ namespace ClosedXML.Excel.CalcEngine
         /// </summary>
         /// <param name="expression">String to parse.</param>
         /// <returns>An <see cref="Expression"/> object that can be evaluated.</returns>
-        public Expression[] Parse(string expression)
+        public Tuple<string, Expression>[] Parse(string expression)
         {
             // initialize
             _expr = expression;
@@ -83,7 +83,7 @@ namespace ClosedXML.Excel.CalcEngine
             while (_len > _ptr && _expr[_ptr] == '+')
                 _ptr++;
 
-            List<Expression> result = new List<Expression>();
+            var result = new List<Tuple<string, Expression>>();
 
             // parse the expression
             do
@@ -94,18 +94,18 @@ namespace ClosedXML.Excel.CalcEngine
                 if (_token.ID == TKID.OPEN)
                     Throw("Unknown function: " + expr.LastParseItem);
 
-                if (_token.ID == TKID.COMMA)
-                {
-                    _expr = _expr.Substring(_ptr);
-                    _len = _expr.Length;
-                    _ptr = 0;
-                }
-
                 // optimize expression
                 if (_optimize)
                     expr = expr.Optimize();
 
-                result.Add(expr);
+                result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Max(0, _ptr)), expr));
+
+                if (_token.ID == TKID.COMMA)
+                {
+                    _expr = _expr.Substring(Math.Min(_ptr, _expr.Length));
+                    _len = _expr.Length;
+                    _ptr = 0;
+                }
             }
             while (_token.ID != TKID.END);
 
@@ -130,15 +130,14 @@ namespace ClosedXML.Excel.CalcEngine
                     ? _cache[expression]
                     : Parse(expression);
 
-            // TODO: needs to be tested
-            // TODO: do something
+            // TODO: needs to be tested or removed since its probably not used
             if (x.Length > 1 && !allowMultipleExpressions)
                 Throw("Multiple expressions are not allowed");
 
             if (x.Length > 1)
-                return x.Select(_ => _.Evaluate(resolveCellReference)).ToArray();
+                return x.Select(_ => _.Item2.Evaluate(resolveCellReference)).ToArray();
             else
-                return x.First().Evaluate(resolveCellReference);
+                return x.First().Item2.Evaluate(resolveCellReference);
         }
 
         /// <summary>

@@ -1056,26 +1056,16 @@ namespace ClosedXML.Excel
                 {
                     try
                     {
-                        var value = CalcEngine.Evaluate(true, false, definedName.Text);
+                        var expressions = CalcEngine.Parse(definedName.Text);
 
-                        if (value is CellRangeReference cellRangeReference)
-                            SetPrintAreaViaReference(cellRangeReference.Range.ToString());
-
-                        if (value is object[] possibleCellRangeReferences)
+                        foreach (var expression in expressions)
                         {
-                            foreach (var singleCellRangeReference in possibleCellRangeReferences.OfType<CellRangeReference>())
-                            {
-                                SetPrintAreaViaReference(singleCellRangeReference.Range.ToString());
-                            }
-
-                            //var area = string.Join(",", possibleCellRangeReferences.OfType<CellRangeReference>().Select(_ => _.Range.ToString()));
-
-                            //SetPrintAreaViaReference(area);
+                            SetPrintAreaViaReference(definedName.LocalSheetId, expression.Item1);
                         }
                     }
                     catch (Exception)
                     {
-                        // NOTE: fallback from previous implementation
+                        // NOTE: fall back to previous implementation
                         var fixedNames = validateDefinedNames(definedName.Text.Split(','));
                         foreach (string area in fixedNames)
                         {
@@ -1123,13 +1113,9 @@ namespace ClosedXML.Excel
             }
         }
 
-        private void SetPrintAreaViaReference(string area)
+        private void SetPrintAreaViaReference(UInt32 localSheetId, string area)
         {
-            string sheetName, sheetArea;
-            ParseReference(area, out sheetName, out sheetArea);
-
-            if (!(sheetArea.Equals("#REF") || sheetArea.EndsWith("#REF!") || sheetArea.Length == 0))
-                WorksheetsInternal.Worksheet(sheetName).PageSetup.PrintAreas.Add(area);
+            WorksheetsInternal.Worksheet((int)(localSheetId + 1)).PageSetup.PrintAreas.AddExpression(area);
         }
 
         private static readonly Regex definedNameRegex = new Regex(@"\A('.*'|[^ ]+)!.*\z", RegexOptions.Compiled);
