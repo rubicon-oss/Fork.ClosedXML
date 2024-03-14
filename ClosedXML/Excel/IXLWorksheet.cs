@@ -5,7 +5,8 @@ using System.IO;
 
 namespace ClosedXML.Excel
 {
-    public enum XLWorksheetVisibility { Visible, Hidden, VeryHidden }
+    public enum XLWorksheetVisibility
+    { Visible, Hidden, VeryHidden }
 
     public interface IXLWorksheet : IXLRangeBase
     {
@@ -428,7 +429,7 @@ namespace ClosedXML.Excel
         IXLRanges SelectedRanges { get; }
         IXLCell ActiveCell { get; set; }
 
-        Object Evaluate(String expression);
+        Object Evaluate(bool resolveCellReference, String expression);
 
         String Author { get; set; }
 

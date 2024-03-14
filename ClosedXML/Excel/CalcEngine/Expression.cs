@@ -11,6 +11,15 @@ namespace ClosedXML.Excel.CalcEngine
     internal abstract class ExpressionBase
     {
         public abstract string LastParseItem { get; }
+
+        // TODO: make virtual and move down
+        //{
+        //    if (_token.Type != TKTYPE.LITERAL)
+        //    {
+        //        throw new ArgumentException("Bad expression.");
+        //    }
+        //    return _token.Value;
+        //}
     }
 
     /// <summary>
@@ -58,7 +67,7 @@ namespace ClosedXML.Excel.CalcEngine
 
         #region ** object model
 
-        public virtual object Evaluate()
+        public virtual object Evaluate(bool resolveCellReference)
         {
             if (_token.Type != TKTYPE.LITERAL)
             {
@@ -83,7 +92,7 @@ namespace ClosedXML.Excel.CalcEngine
             if (x is ErrorExpression)
                 (x as ErrorExpression).ThrowApplicableException();
 
-            var v = x.Evaluate();
+            var v = x.Evaluate(true);
             return v == null ? string.Empty : v.ToString();
         }
 
@@ -93,7 +102,7 @@ namespace ClosedXML.Excel.CalcEngine
                 (x as ErrorExpression).ThrowApplicableException();
 
             // evaluate
-            var v = x.Evaluate();
+            var v = x.Evaluate(true);
 
             // handle doubles
             if (v is double)
@@ -130,7 +139,7 @@ namespace ClosedXML.Excel.CalcEngine
                 (x as ErrorExpression).ThrowApplicableException();
 
             // evaluate
-            var v = x.Evaluate();
+            var v = x.Evaluate(true);
 
             // handle booleans
             if (v is bool)
@@ -160,7 +169,7 @@ namespace ClosedXML.Excel.CalcEngine
                 (x as ErrorExpression).ThrowApplicableException();
 
             // evaluate
-            var v = x.Evaluate();
+            var v = x.Evaluate(true);
 
             // handle dates
             if (v is DateTime)
@@ -188,8 +197,8 @@ namespace ClosedXML.Excel.CalcEngine
         public int CompareTo(Expression other)
         {
             // get both values
-            var c1 = this.Evaluate() as IComparable;
-            var c2 = other.Evaluate() as IComparable;
+            var c1 = this.Evaluate(true) as IComparable;
+            var c2 = other.Evaluate(true) as IComparable;
 
             // handle nulls
             if (c1 == null && c2 == null)
@@ -256,7 +265,7 @@ namespace ClosedXML.Excel.CalcEngine
         }
 
         // ** object model
-        override public object Evaluate()
+        public override object Evaluate(bool resolveCellReference)
         {
             switch (_token.ID)
             {
@@ -273,7 +282,7 @@ namespace ClosedXML.Excel.CalcEngine
         {
             _expr = _expr.Optimize();
             return _expr._token.Type == TKTYPE.LITERAL
-                ? new Expression(this.Evaluate())
+                ? new Expression(this.Evaluate(true))
                 : this;
         }
 
@@ -301,7 +310,7 @@ namespace ClosedXML.Excel.CalcEngine
         }
 
         // ** object model
-        override public object Evaluate()
+        public override object Evaluate(bool resolveCellReference)
         {
             // handle comparisons
             if (_token.Type == TKTYPE.COMPARE)
@@ -361,7 +370,7 @@ namespace ClosedXML.Excel.CalcEngine
             _lft = _lft.Optimize();
             _rgt = _rgt.Optimize();
             return _lft._token.Type == TKTYPE.LITERAL && _rgt._token.Type == TKTYPE.LITERAL
-                ? new Expression(this.Evaluate())
+                ? new Expression(this.Evaluate(true))
                 : this;
         }
 
@@ -392,9 +401,14 @@ namespace ClosedXML.Excel.CalcEngine
         }
 
         // ** object model
-        override public object Evaluate()
+        public override object Evaluate(bool resolveCellReference)
         {
-            return _fn.Function(_parms);
+            var result = _fn.Function(_parms);
+
+            if (resolveCellReference && result is IValueObject valueObject)
+                return valueObject.GetValue();
+
+            return result;
         }
 
         public override Expression Optimize()
@@ -413,7 +427,7 @@ namespace ClosedXML.Excel.CalcEngine
                 }
             }
             return allLits
-                ? new Expression(this.Evaluate())
+                ? new Expression(this.Evaluate(true))
                 : this;
         }
 
@@ -437,9 +451,14 @@ namespace ClosedXML.Excel.CalcEngine
             _name = name;
         }
 
-        public override object Evaluate()
+        public override object Evaluate(bool resolveCellReference)
         {
-            return _dct[_name];
+            object result = _dct[_name];
+
+            if (resolveCellReference && result is IValueObject valueObject)
+                return valueObject.GetValue();
+
+            return result;
         }
 
         public override string LastParseItem
@@ -463,14 +482,14 @@ namespace ClosedXML.Excel.CalcEngine
             _value = value;
         }
 
-        public object Value { get { return _value; } }
+        public object Value
+        { get { return _value; } }
 
         // ** object model
-        public override object Evaluate()
+        public override object Evaluate(bool resolveCellReference)
         {
             // use IValueObject if available
-            var iv = _value as IValueObject;
-            if (iv != null)
+            if (resolveCellReference && _value is IValueObject iv)
             {
                 return iv.GetValue();
             }
@@ -495,7 +514,8 @@ namespace ClosedXML.Excel.CalcEngine
     /// </summary>
     internal class EmptyValueExpression : Expression
     {
-        internal EmptyValueExpression() { }
+        internal EmptyValueExpression()
+        { }
 
         public override string LastParseItem
         {
@@ -520,7 +540,7 @@ namespace ClosedXML.Excel.CalcEngine
             : base(new Token(eet, TKID.ATOM, TKTYPE.ERROR))
         { }
 
-        public override object Evaluate()
+        public override object Evaluate(bool resolveCellReference)
         {
             return this._token.Value;
         }

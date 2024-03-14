@@ -71,7 +71,8 @@ namespace ClosedXML.Excel.CalcEngine
             _ce = ce;
         }
 
-        public IXLRange Range { get { return _range; } }
+        public IXLRange Range
+        { get { return _range; } }
 
         // ** IValueObject
         public object GetValue()
@@ -101,7 +102,7 @@ namespace ClosedXML.Excel.CalcEngine
                 if (String.IsNullOrWhiteSpace(f))
                     return cell.Value;
                 else
-                    return new XLCalcEngine(cell.Worksheet).Evaluate(f);
+                    return new XLCalcEngine(cell.Worksheet).Evaluate(true, f);
             }
             finally
             {

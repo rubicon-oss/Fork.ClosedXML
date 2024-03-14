@@ -1496,7 +1496,8 @@ namespace ClosedXML.Excel
             return (XLRange)namedRanges.Ranges.First();
         }
 
-        public IXLRanges MergedRanges { get { return Internals.MergedRanges; } }
+        public IXLRanges MergedRanges
+        { get { return Internals.MergedRanges; } }
 
         public IXLConditionalFormats ConditionalFormats { get; private set; }
 
@@ -1524,9 +1525,9 @@ namespace ClosedXML.Excel
             get { return _calcEngine ?? (_calcEngine = new XLCalcEngine(this)); }
         }
 
-        public Object Evaluate(String expression)
+        public Object Evaluate(bool resolveCellReference, String expression)
         {
-            return CalcEngine.Evaluate(expression);
+            return CalcEngine.Evaluate(resolveCellReference, expression);
         }
 
         public String Author { get; set; }
@@ -1587,6 +1588,7 @@ namespace ClosedXML.Excel
         {
             return Pictures.Add(imageFile, name);
         }
+
         public override Boolean IsEntireRow()
         {
             return true;
@@ -1606,6 +1608,5 @@ namespace ClosedXML.Excel
             else
                 this.Cell(ro, co).SetValue(value);
         }
-
     }
 }

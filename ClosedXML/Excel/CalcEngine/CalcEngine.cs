@@ -113,12 +113,14 @@ namespace ClosedXML.Excel.CalcEngine
         /// method and then using the Expression.Evaluate method to evaluate
         /// the parsed expression.
         /// </remarks>
-        public object Evaluate(string expression)
+        public object Evaluate(bool resolveCellReference, string expression)
         {
             var x = _cache != null
                     ? _cache[expression]
                     : Parse(expression);
-            return x.Evaluate();
+
+            // TODO: needs to be tested
+            return x.Evaluate(resolveCellReference);
         }
 
         /// <summary>
@@ -263,7 +265,6 @@ namespace ClosedXML.Excel.CalcEngine
             ["#NULL!"] = ErrorExpression.ExpressionErrorType.NullValue,
             ["#NUM!"] = ErrorExpression.ExpressionErrorType.NumberInvalid
         };
-
 
         // build/get static token table
         private Dictionary<object, Token> GetSymbolTable()
@@ -680,7 +681,7 @@ namespace ClosedXML.Excel.CalcEngine
             }
 
             // parse #REF! (and other errors) in formula
-            if (c == '#' && ErrorMap.Any(pair => _len > _ptr+pair.Key.Length && _expr.Substring(_ptr, pair.Key.Length).Equals(pair.Key, StringComparison.OrdinalIgnoreCase)))
+            if (c == '#' && ErrorMap.Any(pair => _len > _ptr + pair.Key.Length && _expr.Substring(_ptr, pair.Key.Length).Equals(pair.Key, StringComparison.OrdinalIgnoreCase)))
             {
                 var errorPair = ErrorMap.Single(pair => _len > _ptr + pair.Key.Length && _expr.Substring(_ptr, pair.Key.Length).Equals(pair.Key, StringComparison.OrdinalIgnoreCase));
                 _ptr += errorPair.Key.Length;

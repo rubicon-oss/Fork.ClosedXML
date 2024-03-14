@@ -56,6 +56,8 @@ namespace ClosedXML_Tests.Excel
         [Test]
         public void CanLoadAndSavePrintArea()
         {
+            // TODO: Test with a sheet reference in the form 'Sheet 2'!A1:B2
+
             using var stream = TestHelper.GetStreamFromResource(TestHelper.GetResourcePath(@"TryToLoad\PrintArea.xlsx"));
             using var wb = new XLWorkbook(stream);
             //var ws = wb.Worksheets.First();

@@ -86,7 +86,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         public void Hlookup()
         {
             // Range lookup false
-            var value = workbook.Evaluate(@"=HLOOKUP(""Total"",Data!$B$2:$I$71,4,FALSE)");
+            var value = workbook.Evaluate(true, @"=HLOOKUP(""Total"",Data!$B$2:$I$71,4,FALSE)");
             Assert.AreEqual(179.64, value);
         }
 
@@ -94,40 +94,40 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         public void Vlookup()
         {
             // Range lookup false
-            var value = workbook.Evaluate("=VLOOKUP(3,Data!$B$2:$I$71,3,FALSE)");
+            var value = workbook.Evaluate(true, "=VLOOKUP(3,Data!$B$2:$I$71,3,FALSE)");
             Assert.AreEqual("Central", value);
 
-            value = workbook.Evaluate("=VLOOKUP(DATE(2015,5,22),Data!C:I,7,FALSE)");
+            value = workbook.Evaluate(true, "=VLOOKUP(DATE(2015,5,22),Data!C:I,7,FALSE)");
             Assert.AreEqual(63.68, value);
 
-            value = workbook.Evaluate(@"=VLOOKUP(""Central"",Data!D:E,2,FALSE)");
+            value = workbook.Evaluate(true, @"=VLOOKUP(""Central"",Data!D:E,2,FALSE)");
             Assert.AreEqual("Kivell", value);
 
             // Range lookup true
-            value = workbook.Evaluate("=VLOOKUP(3,Data!$B$2:$I$71,8,TRUE)");
+            value = workbook.Evaluate(true, "=VLOOKUP(3,Data!$B$2:$I$71,8,TRUE)");
             Assert.AreEqual(179.64, value);
 
-            value = workbook.Evaluate("=VLOOKUP(3,Data!$B$2:$I$71,8)");
+            value = workbook.Evaluate(true, "=VLOOKUP(3,Data!$B$2:$I$71,8)");
             Assert.AreEqual(179.64, value);
 
-            value = workbook.Evaluate("=VLOOKUP(3,Data!$B$2:$I$71,8,)");
+            value = workbook.Evaluate(true, "=VLOOKUP(3,Data!$B$2:$I$71,8,)");
             Assert.AreEqual(179.64, value);
 
-            value = workbook.Evaluate("=VLOOKUP(14.5,Data!$B$2:$I$71,8,TRUE)");
+            value = workbook.Evaluate(true, "=VLOOKUP(14.5,Data!$B$2:$I$71,8,TRUE)");
             Assert.AreEqual(174.65, value);
 
-            value = workbook.Evaluate("=VLOOKUP(50,Data!$B$2:$I$71,8,TRUE)");
+            value = workbook.Evaluate(true, "=VLOOKUP(50,Data!$B$2:$I$71,8,TRUE)");
             Assert.AreEqual(139.72, value);
         }
 
         [Test]
         public void Vlookup_Exceptions()
         {
-            Assert.Throws<NoValueAvailableException>(() => workbook.Evaluate(@"=VLOOKUP("""",Data!$B$2:$I$71,3,FALSE)"));
-            Assert.Throws<NoValueAvailableException>(() => workbook.Evaluate(@"=VLOOKUP(50,Data!$B$2:$I$71,3,FALSE)"));
-            Assert.Throws<NoValueAvailableException>(() => workbook.Evaluate(@"=VLOOKUP(-1,Data!$B$2:$I$71,2,TRUE)"));
+            Assert.Throws<NoValueAvailableException>(() => workbook.Evaluate(true, @"=VLOOKUP("""",Data!$B$2:$I$71,3,FALSE)"));
+            Assert.Throws<NoValueAvailableException>(() => workbook.Evaluate(true, @"=VLOOKUP(50,Data!$B$2:$I$71,3,FALSE)"));
+            Assert.Throws<NoValueAvailableException>(() => workbook.Evaluate(true, @"=VLOOKUP(-1,Data!$B$2:$I$71,2,TRUE)"));
 
-            Assert.Throws<CellReferenceException>(() => workbook.Evaluate(@"=VLOOKUP(20,Data!$B$2:$I$71,9,FALSE)"));
+            Assert.Throws<CellReferenceException>(() => workbook.Evaluate(true, @"=VLOOKUP(20,Data!$B$2:$I$71,9,FALSE)"));
         }
     }
 }

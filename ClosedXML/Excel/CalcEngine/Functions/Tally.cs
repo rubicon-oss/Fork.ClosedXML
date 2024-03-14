@@ -49,7 +49,7 @@ namespace ClosedXML.Excel.CalcEngine
             }
 
             // handle expressions
-            var val = e.Evaluate();
+            var val = e.Evaluate(true);
             var valEnumerable = val as IEnumerable;
             if (valEnumerable == null || val is string)
                 _list.Add(val);
@@ -108,7 +108,8 @@ namespace ClosedXML.Excel.CalcEngine
             return retVal;
         }
 
-        public double Sum() { return NumericValues().Sum(); }
+        public double Sum()
+        { return NumericValues().Sum(); }
 
         public double Average()
         {

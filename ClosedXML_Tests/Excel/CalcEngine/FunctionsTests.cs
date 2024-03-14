@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace ClosedXML_Tests.Excel.CalcEngine
 {
-
     [TestFixture]
     public class FunctionsTests
     {
@@ -47,7 +46,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         public void Degrees()
         {
             object actual1 = XLWorkbook.EvaluateExpr("Degrees(180)");
-            Assert.IsTrue(Math.PI - (double) actual1 < XLHelper.Epsilon);
+            Assert.IsTrue(Math.PI - (double)actual1 < XLHelper.Epsilon);
         }
 
         [Test]
@@ -179,23 +178,22 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             ws.Cell("A1").SetValue(2).CellRight().SetValue(4);
             ws.Cell("A2").SetValue(3).CellRight().SetValue(5);
 
-
             Object actual;
 
             ws.Cell("A5").FormulaA1 = "MDeterm(A1:B2)";
             actual = ws.Cell("A5").Value;
 
-            Assert.IsTrue(XLHelper.AreEqual(-2.0, (double) actual));
+            Assert.IsTrue(XLHelper.AreEqual(-2.0, (double)actual));
 
             ws.Cell("A6").FormulaA1 = "Sum(A5)";
             actual = ws.Cell("A6").Value;
 
-            Assert.IsTrue(XLHelper.AreEqual(-2.0, (double) actual));
+            Assert.IsTrue(XLHelper.AreEqual(-2.0, (double)actual));
 
             ws.Cell("A7").FormulaA1 = "Sum(MDeterm(A1:B2))";
             actual = ws.Cell("A7").Value;
 
-            Assert.IsTrue(XLHelper.AreEqual(-2.0, (double) actual));
+            Assert.IsTrue(XLHelper.AreEqual(-2.0, (double)actual));
         }
 
         [Test]
@@ -206,23 +204,22 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             ws.Cell("A2").SetValue(3).CellRight().SetValue(4).CellRight().SetValue(-1);
             ws.Cell("A3").SetValue(0).CellRight().SetValue(2).CellRight().SetValue(0);
 
-
             Object actual;
 
             ws.Cell("A5").FormulaA1 = "MInverse(A1:C3)";
             actual = ws.Cell("A5").Value;
 
-            Assert.IsTrue(XLHelper.AreEqual(0.25, (double) actual));
+            Assert.IsTrue(XLHelper.AreEqual(0.25, (double)actual));
 
             ws.Cell("A6").FormulaA1 = "Sum(A5)";
             actual = ws.Cell("A6").Value;
 
-            Assert.IsTrue(XLHelper.AreEqual(0.25, (double) actual));
+            Assert.IsTrue(XLHelper.AreEqual(0.25, (double)actual));
 
             ws.Cell("A7").FormulaA1 = "Sum(MInverse(A1:C3))";
             actual = ws.Cell("A7").Value;
 
-            Assert.IsTrue(XLHelper.AreEqual(0.5, (double) actual));
+            Assert.IsTrue(XLHelper.AreEqual(0.5, (double)actual));
         }
 
         [Test]
@@ -340,7 +337,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         public void Radians()
         {
             object actual = XLWorkbook.EvaluateExpr("Radians(270)");
-            Assert.IsTrue(Math.Abs(4.71238898038469 - (double) actual) < XLHelper.Epsilon);
+            Assert.IsTrue(Math.Abs(4.71238898038469 - (double)actual) < XLHelper.Epsilon);
         }
 
         [Test]
@@ -379,7 +376,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
 
             actual = XLWorkbook.EvaluateExpr("Round(-50.55, -2)");
             Assert.AreEqual(-100.0, actual);
-            
+
             actual = XLWorkbook.EvaluateExpr("ROUND(59 * 0.535, 2)"); // (59 * 0.535) = 31.565
             Assert.AreEqual(31.57, actual);
 
@@ -445,18 +442,18 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             ws.Cell("A5").FormulaA1 = "1/FACT(4)";
             ws.Cell("A6").FormulaA1 = "-1/FACT(6)";
 
-            actual = ws.Evaluate("SERIESSUM(A2,0,2,A3:A6)");
-            Assert.IsTrue(Math.Abs(0.70710321482284566 - (double) actual) < XLHelper.Epsilon);
+            actual = ws.Evaluate(true, "SERIESSUM(A2,0,2,A3:A6)");
+            Assert.IsTrue(Math.Abs(0.70710321482284566 - (double)actual) < XLHelper.Epsilon);
         }
 
         [Test]
         public void SqrtPi()
         {
             object actual = XLWorkbook.EvaluateExpr("SqrtPi(1)");
-            Assert.IsTrue(Math.Abs(1.7724538509055159 - (double) actual) < XLHelper.Epsilon);
+            Assert.IsTrue(Math.Abs(1.7724538509055159 - (double)actual) < XLHelper.Epsilon);
 
             actual = XLWorkbook.EvaluateExpr("SqrtPi(2)");
-            Assert.IsTrue(Math.Abs(2.5066282746310002 - (double) actual) < XLHelper.Epsilon);
+            Assert.IsTrue(Math.Abs(2.5066282746310002 - (double)actual) < XLHelper.Epsilon);
         }
 
         [Test]
@@ -524,7 +521,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             Object actual;
 
             actual = XLWorkbook.EvaluateExpr(@"Subtotal(7,2,3,""A"")");
-            Assert.IsTrue(Math.Abs(0.70710678118654757 - (double) actual) < XLHelper.Epsilon);
+            Assert.IsTrue(Math.Abs(0.70710678118654757 - (double)actual) < XLHelper.Epsilon);
         }
 
         [Test]
@@ -551,7 +548,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             Object actual;
 
             actual = XLWorkbook.EvaluateExpr(@"Subtotal(10,2,3,""A"")");
-            Assert.IsTrue(Math.Abs(0.5 - (double) actual) < XLHelper.Epsilon);
+            Assert.IsTrue(Math.Abs(0.5 - (double)actual) < XLHelper.Epsilon);
         }
 
         [Test]
@@ -629,16 +626,16 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             using (var wb = new XLWorkbook())
             {
                 object value;
-                value = wb.Evaluate("=IF(TRUE,1)");
+                value = wb.Evaluate(true, "=IF(TRUE,1)");
                 Assert.AreEqual(1, value);
 
-                value = wb.Evaluate("=IF(TRUE,1,)");
+                value = wb.Evaluate(true, "=IF(TRUE,1,)");
                 Assert.AreEqual(1, value);
 
-                value = wb.Evaluate("=IF(FALSE,1,)");
+                value = wb.Evaluate(true, "=IF(FALSE,1,)");
                 Assert.AreEqual(false, value);
 
-                value = wb.Evaluate("=IF(FALSE,,2)");
+                value = wb.Evaluate(true, "=IF(FALSE,,2)");
                 Assert.AreEqual(2, value);
             }
         }

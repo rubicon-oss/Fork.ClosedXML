@@ -144,6 +144,7 @@ namespace ClosedXML_Tests.Excel
         [Test]
         public void NamedRangesWhenCopyingWorksheets()
         {
+            // NOTE: MS Excel behaves differently. A reference to a range spills into the adjacent cells of the referencing cell.
             using (var wb = new XLWorkbook())
             {
                 var ws1 = wb.AddWorksheet("Sheet1");
