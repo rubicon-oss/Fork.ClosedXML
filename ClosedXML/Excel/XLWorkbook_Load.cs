@@ -1056,20 +1056,26 @@ namespace ClosedXML.Excel
                 {
                     try
                     {
-                        //  there is still the problem of multiple areas (or functions that return areas) splitted via ','. Check how parse/evaluate can be adapted to consider additional ranges too.
-                        //  check how to do either evaluation or not if there is no function. Sadly there is no leading '=' to make the choice.
-                        //var calcEngine = new XLCalcEngine(this) { IdentifierChars = new[] { '$', ':', '!' } };
-
-                        var value = CalcEngine.Evaluate(false, definedName.Text);
-
-                        // NOTE: there is no caching done here as this is a one-time operation
-                        //var value = calcEngine.Evaluate(definedName.Text);
+                        var value = CalcEngine.Evaluate(true, false, definedName.Text);
 
                         if (value is CellRangeReference cellRangeReference)
                             SetPrintAreaViaReference(cellRangeReference.Range.ToString());
+
+                        if (value is object[] possibleCellRangeReferences)
+                        {
+                            foreach (var singleCellRangeReference in possibleCellRangeReferences.OfType<CellRangeReference>())
+                            {
+                                SetPrintAreaViaReference(singleCellRangeReference.Range.ToString());
+                            }
+
+                            //var area = string.Join(",", possibleCellRangeReferences.OfType<CellRangeReference>().Select(_ => _.Range.ToString()));
+
+                            //SetPrintAreaViaReference(area);
+                        }
                     }
                     catch (Exception)
                     {
+                        // NOTE: fallback from previous implementation
                         var fixedNames = validateDefinedNames(definedName.Text.Split(','));
                         foreach (string area in fixedNames)
                         {
@@ -1077,13 +1083,15 @@ namespace ClosedXML.Excel
                             {
                                 var ws = Worksheets.FirstOrDefault(w => (w as XLWorksheet).SheetId == definedName.LocalSheetId + 1);
                                 if (ws != null)
-                                {
                                     ws.PageSetup.PrintAreas.Add(area);
-                                }
                             }
                             else
                             {
-                                SetPrintAreaViaReference(area);
+                                string sheetName, sheetArea;
+                                ParseReference(area, out sheetName, out sheetArea);
+
+                                if (!(sheetArea.Equals("#REF") || sheetArea.EndsWith("#REF!") || sheetArea.Length == 0))
+                                    WorksheetsInternal.Worksheet(sheetName).PageSetup.PrintAreas.Add(area);
                             }
                         }
                     }
@@ -1119,8 +1127,9 @@ namespace ClosedXML.Excel
         {
             string sheetName, sheetArea;
             ParseReference(area, out sheetName, out sheetArea);
+
             if (!(sheetArea.Equals("#REF") || sheetArea.EndsWith("#REF!") || sheetArea.Length == 0))
-                WorksheetsInternal.Worksheet(sheetName).PageSetup.PrintAreas.Add(sheetArea);
+                WorksheetsInternal.Worksheet(sheetName).PageSetup.PrintAreas.Add(area);
         }
 
         private static readonly Regex definedNameRegex = new Regex(@"\A('.*'|[^ ]+)!.*\z", RegexOptions.Compiled);

@@ -50,7 +50,7 @@ namespace ClosedXML.Excel.CalcEngine
                     }
 
                     // evaluate
-                    return (bool)ce.Evaluate(true, expression);
+                    return (bool)ce.Evaluate(false, true, expression);
                 }
 
                 // if criteria is a regular expression, use regex

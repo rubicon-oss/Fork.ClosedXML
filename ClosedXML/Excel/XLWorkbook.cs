@@ -897,9 +897,9 @@ namespace ClosedXML.Excel
             get { return _calcEngine ?? (_calcEngine = new XLCalcEngine(this)); }
         }
 
-        public Object Evaluate(bool resolveCellReference, String expression)
+        public Object Evaluate(bool allowMultipleExpressions, bool resolveCellReference, String expression)
         {
-            return CalcEngine.Evaluate(resolveCellReference, expression);
+            return CalcEngine.Evaluate(allowMultipleExpressions, resolveCellReference, expression);
         }
 
         private static XLCalcEngine _calcEngineExpr;
@@ -913,7 +913,7 @@ namespace ClosedXML.Excel
         // NOTE: only used in tests
         public static Object EvaluateExpr(String expression)
         {
-            return CalcEngineExpr.Evaluate(true, expression);
+            return CalcEngineExpr.Evaluate(false, true, expression);
         }
 
         public String Author { get; set; }

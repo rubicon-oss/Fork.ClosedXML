@@ -68,7 +68,7 @@ namespace ClosedXML.Excel.CalcEngine
         /// </summary>
         /// <param name="expression">String to parse.</param>
         /// <returns>An <see cref="Expression"/> object that can be evaluated.</returns>
-        public Expression Parse(string expression)
+        public Expression[] Parse(string expression)
         {
             // initialize
             _expr = expression;
@@ -83,23 +83,34 @@ namespace ClosedXML.Excel.CalcEngine
             while (_len > _ptr && _expr[_ptr] == '+')
                 _ptr++;
 
+            List<Expression> result = new List<Expression>();
+
             // parse the expression
-            var expr = ParseExpression();
-
-            // check for errors
-            if (_token.ID == TKID.OPEN)
-                Throw("Unknown function: " + expr.LastParseItem);
-            else if (_token.ID != TKID.END)
-                Throw("Expected end of expression");
-
-            // optimize expression
-            if (_optimize)
+            do
             {
-                expr = expr.Optimize();
+                var expr = ParseExpression();
+
+                // check for errors
+                if (_token.ID == TKID.OPEN)
+                    Throw("Unknown function: " + expr.LastParseItem);
+
+                if (_token.ID == TKID.COMMA)
+                {
+                    _expr = _expr.Substring(_ptr);
+                    _len = _expr.Length;
+                    _ptr = 0;
+                }
+
+                // optimize expression
+                if (_optimize)
+                    expr = expr.Optimize();
+
+                result.Add(expr);
             }
+            while (_token.ID != TKID.END);
 
             // done
-            return expr;
+            return result.ToArray();
         }
 
         /// <summary>
@@ -113,14 +124,21 @@ namespace ClosedXML.Excel.CalcEngine
         /// method and then using the Expression.Evaluate method to evaluate
         /// the parsed expression.
         /// </remarks>
-        public object Evaluate(bool resolveCellReference, string expression)
+        public object Evaluate(bool allowMultipleExpressions, bool resolveCellReference, string expression)
         {
             var x = _cache != null
                     ? _cache[expression]
                     : Parse(expression);
 
             // TODO: needs to be tested
-            return x.Evaluate(resolveCellReference);
+            // TODO: do something
+            if (x.Length > 1 && !allowMultipleExpressions)
+                Throw("Multiple expressions are not allowed");
+
+            if (x.Length > 1)
+                return x.Select(_ => _.Evaluate(resolveCellReference)).ToArray();
+            else
+                return x.First().Evaluate(resolveCellReference);
         }
 
         /// <summary>

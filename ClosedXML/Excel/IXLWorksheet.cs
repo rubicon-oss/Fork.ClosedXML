@@ -429,7 +429,7 @@ namespace ClosedXML.Excel
         IXLRanges SelectedRanges { get; }
         IXLCell ActiveCell { get; set; }
 
-        Object Evaluate(bool resolveCellReference, String expression);
+        Object Evaluate(bool allowMultipleExpressions, bool resolveCellReference, String expression);
 
         String Author { get; set; }
 

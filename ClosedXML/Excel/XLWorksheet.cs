@@ -1525,9 +1525,9 @@ namespace ClosedXML.Excel
             get { return _calcEngine ?? (_calcEngine = new XLCalcEngine(this)); }
         }
 
-        public Object Evaluate(bool resolveCellReference, String expression)
+        public Object Evaluate(bool allowMultipleExpressions, bool resolveCellReference, String expression)
         {
-            return CalcEngine.Evaluate(resolveCellReference, expression);
+            return CalcEngine.Evaluate(allowMultipleExpressions, resolveCellReference, expression);
         }
 
         public String Author { get; set; }

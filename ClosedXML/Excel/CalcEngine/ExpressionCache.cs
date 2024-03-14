@@ -11,11 +11,11 @@ namespace ClosedXML.Excel.CalcEngine
     /// <remarks>
     /// Uses weak references to avoid accumulating unused expressions.
     /// </remarks>
-    class ExpressionCache
+    internal class ExpressionCache
     {
-        Dictionary<string, WeakReference> _dct;
-        CalcEngine _ce;
-        int _hitCount;
+        private Dictionary<string, WeakReference> _dct;
+        private CalcEngine _ce;
+        private int _hitCount;
 
         public ExpressionCache(CalcEngine ce)
         {
@@ -24,15 +24,15 @@ namespace ClosedXML.Excel.CalcEngine
         }
 
         // gets the parsed version of a string expression
-        public Expression this[string expression]
+        public Expression[] this[string expression]
         {
             get
             {
-                Expression x;
+                Expression[] x;
                 WeakReference wr;
                 if (_dct.TryGetValue(expression, out wr) && wr.IsAlive)
                 {
-                    x = wr.Target as Expression;
+                    x = wr.Target as Expression[];
                 }
                 else
                 {
@@ -52,9 +52,9 @@ namespace ClosedXML.Excel.CalcEngine
         }
 
         // remove all dead references from the cache
-        void RemoveDeadReferences()
+        private void RemoveDeadReferences()
         {
-            for (bool done = false; !done; )
+            for (bool done = false; !done;)
             {
                 done = true;
                 foreach (var k in _dct.Keys)

@@ -23,7 +23,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             using (var wb = new XLWorkbook())
             {
                 var ws = wb.AddWorksheet("Sheet");
-                var actual = ws.Evaluate(true, "=IsBlank(A1:A3)");
+                var actual = ws.Evaluate(false, true, "=IsBlank(A1:A3)");
                 Assert.AreEqual(true, actual);
             }
         }
@@ -37,7 +37,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A1").Value = "1";
                 ws.Cell("A2").Value = "1";
                 ws.Cell("A3").Value = "1";
-                var actual = ws.Evaluate(true, "=IsBlank(A1:A3)");
+                var actual = ws.Evaluate(false, true, "=IsBlank(A1:A3)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -50,7 +50,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 var ws = wb.AddWorksheet("Sheet");
                 ws.Cell("A1").Value = "1";
                 ws.Cell("A3").Value = "1";
-                var actual = ws.Evaluate(true, "=IsBlank(A1:A3)");
+                var actual = ws.Evaluate(false, true, "=IsBlank(A1:A3)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -62,7 +62,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             {
                 var ws = wb.AddWorksheet("Sheet");
                 ws.Cell("A1").Value = " ";
-                var actual = ws.Evaluate(true, "=IsBlank(A1)");
+                var actual = ws.Evaluate(false, true, "=IsBlank(A1)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -73,7 +73,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             using (var wb = new XLWorkbook())
             {
                 var ws = wb.AddWorksheet("Sheet");
-                var actual = ws.Evaluate(true, "=IsBlank(A1)");
+                var actual = ws.Evaluate(false, true, "=IsBlank(A1)");
                 Assert.AreEqual(true, actual);
             }
         }
@@ -93,13 +93,13 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A2").Value = 1.2;
                 ws.Cell("A3").Value = 3;
 
-                var actual = ws.Evaluate(true, "=IsEven(A1)");
+                var actual = ws.Evaluate(false, true, "=IsEven(A1)");
                 Assert.AreEqual(false, actual);
 
-                actual = ws.Evaluate(true, "=IsEven(A2)");
+                actual = ws.Evaluate(false, true, "=IsEven(A2)");
                 Assert.AreEqual(false, actual);
 
-                actual = ws.Evaluate(true, "=IsEven(A3)");
+                actual = ws.Evaluate(false, true, "=IsEven(A3)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -115,13 +115,13 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A2").Value = 0.2;
                 ws.Cell("A3").Value = 12.2;
 
-                var actual = ws.Evaluate(true, "=IsEven(A1)");
+                var actual = ws.Evaluate(false, true, "=IsEven(A1)");
                 Assert.AreEqual(true, actual);
 
-                actual = ws.Evaluate(true, "=IsEven(A2)");
+                actual = ws.Evaluate(false, true, "=IsEven(A2)");
                 Assert.AreEqual(true, actual);
 
-                actual = ws.Evaluate(true, "=IsEven(A3)");
+                actual = ws.Evaluate(false, true, "=IsEven(A3)");
                 Assert.AreEqual(true, actual);
             }
         }
@@ -139,7 +139,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
 
                 ws.Cell("A1").Value = 123;
 
-                var actual = ws.Evaluate(true, "=IsLogical(A1)");
+                var actual = ws.Evaluate(false, true, "=IsLogical(A1)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -153,7 +153,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
 
                 ws.Cell("A1").Value = true;
 
-                var actual = ws.Evaluate(true, "=IsLogical(A1)");
+                var actual = ws.Evaluate(false, true, "=IsLogical(A1)");
                 Assert.AreEqual(true, actual);
             }
         }
@@ -180,7 +180,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             {
                 var ws = wb.AddWorksheet("Sheet");
                 ws.Cell("A1").Value = "asd";
-                var actual = ws.Evaluate(true, "=IsNonText(A1)");
+                var actual = ws.Evaluate(false, true, "=IsNonText(A1)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -198,17 +198,17 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A5").Value = true; //Bool Value
                 ws.Cell("A6").Value = "12%"; //Percentage Value
 
-                var actual = ws.Evaluate(true, "=IsNonText(A1)");
+                var actual = ws.Evaluate(false, true, "=IsNonText(A1)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNonText(A2)");
+                actual = ws.Evaluate(false, true, "=IsNonText(A2)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNonText(A3)");
+                actual = ws.Evaluate(false, true, "=IsNonText(A3)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNonText(A4)");
+                actual = ws.Evaluate(false, true, "=IsNonText(A4)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNonText(A5)");
+                actual = ws.Evaluate(false, true, "=IsNonText(A5)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNonText(A6)");
+                actual = ws.Evaluate(false, true, "=IsNonText(A6)");
                 Assert.AreEqual(true, actual);
             }
         }
@@ -226,9 +226,9 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A1").Value = "asd"; //String Value
                 ws.Cell("A2").Value = true; //Bool Value
 
-                var actual = ws.Evaluate(true, "=IsNumber(A1)");
+                var actual = ws.Evaluate(false, true, "=IsNumber(A1)");
                 Assert.AreEqual(false, actual);
-                actual = ws.Evaluate(true, "=IsNumber(A2)");
+                actual = ws.Evaluate(false, true, "=IsNumber(A2)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -245,15 +245,15 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A4").Value = "$12,235.5"; //Currency Value
                 ws.Cell("A5").Value = "12%"; //Percentage Value
 
-                var actual = ws.Evaluate(true, "=IsNumber(A1)");
+                var actual = ws.Evaluate(false, true, "=IsNumber(A1)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNumber(A2)");
+                actual = ws.Evaluate(false, true, "=IsNumber(A2)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNumber(A3)");
+                actual = ws.Evaluate(false, true, "=IsNumber(A3)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNumber(A4)");
+                actual = ws.Evaluate(false, true, "=IsNumber(A4)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsNumber(A5)");
+                actual = ws.Evaluate(false, true, "=IsNumber(A5)");
                 Assert.AreEqual(true, actual);
             }
         }
@@ -273,11 +273,11 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A2").Value = 0.2;
                 ws.Cell("A3").Value = 12.2;
 
-                var actual = ws.Evaluate(true, "=IsOdd(A1)");
+                var actual = ws.Evaluate(false, true, "=IsOdd(A1)");
                 Assert.AreEqual(false, actual);
-                actual = ws.Evaluate(true, "=IsOdd(A2)");
+                actual = ws.Evaluate(false, true, "=IsOdd(A2)");
                 Assert.AreEqual(false, actual);
-                actual = ws.Evaluate(true, "=IsOdd(A3)");
+                actual = ws.Evaluate(false, true, "=IsOdd(A3)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -293,11 +293,11 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A2").Value = 1.2;
                 ws.Cell("A3").Value = 3;
 
-                var actual = ws.Evaluate(true, "=IsOdd(A1)");
+                var actual = ws.Evaluate(false, true, "=IsOdd(A1)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsOdd(A2)");
+                actual = ws.Evaluate(false, true, "=IsOdd(A2)");
                 Assert.AreEqual(true, actual);
-                actual = ws.Evaluate(true, "=IsOdd(A3)");
+                actual = ws.Evaluate(false, true, "=IsOdd(A3)");
                 Assert.AreEqual(true, actual);
             }
         }
@@ -343,17 +343,17 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 ws.Cell("A5").Value = true; //Bool Value
                 ws.Cell("A6").Value = "12%"; //Percentage Value
 
-                var actual = ws.Evaluate(true, "=IsText(A1)");
+                var actual = ws.Evaluate(false, true, "=IsText(A1)");
                 Assert.AreEqual(false, actual);
-                actual = ws.Evaluate(true, "=IsText(A2)");
+                actual = ws.Evaluate(false, true, "=IsText(A2)");
                 Assert.AreEqual(false, actual);
-                actual = ws.Evaluate(true, "=IsText(A3)");
+                actual = ws.Evaluate(false, true, "=IsText(A3)");
                 Assert.AreEqual(false, actual);
-                actual = ws.Evaluate(true, "=IsText(A4)");
+                actual = ws.Evaluate(false, true, "=IsText(A4)");
                 Assert.AreEqual(false, actual);
-                actual = ws.Evaluate(true, "=IsText(A5)");
+                actual = ws.Evaluate(false, true, "=IsText(A5)");
                 Assert.AreEqual(false, actual);
-                actual = ws.Evaluate(true, "=IsText(A6)");
+                actual = ws.Evaluate(false, true, "=IsText(A6)");
                 Assert.AreEqual(false, actual);
             }
         }
@@ -367,7 +367,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
 
                 ws.Cell("A1").Value = "asd";
 
-                var actual = ws.Evaluate(true, "=IsText(A1)");
+                var actual = ws.Evaluate(false, true, "=IsText(A1)");
                 Assert.AreEqual(true, actual);
             }
         }
@@ -384,7 +384,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 var ws = wb.AddWorksheet("Sheet");
                 var testedDate = DateTime.Now;
                 ws.Cell("A1").Value = testedDate;
-                var actual = ws.Evaluate(true, "=N(A1)");
+                var actual = ws.Evaluate(false, true, "=N(A1)");
                 Assert.AreEqual(testedDate.ToOADate(), actual);
             }
         }
@@ -396,7 +396,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             {
                 var ws = wb.AddWorksheet("Sheet");
                 ws.Cell("A1").Value = false;
-                var actual = ws.Evaluate(true, "=N(A1)");
+                var actual = ws.Evaluate(false, true, "=N(A1)");
                 Assert.AreEqual(0, actual);
             }
         }
@@ -409,7 +409,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
                 var ws = wb.AddWorksheet("Sheet");
                 var testedValue = 123;
                 ws.Cell("A1").Value = testedValue;
-                var actual = ws.Evaluate(true, "=N(A1)");
+                var actual = ws.Evaluate(false, true, "=N(A1)");
                 Assert.AreEqual(testedValue, actual);
             }
         }
@@ -421,7 +421,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             {
                 var ws = wb.AddWorksheet("Sheet");
                 ws.Cell("A1").Value = "asd";
-                var actual = ws.Evaluate(true, "=N(A1)");
+                var actual = ws.Evaluate(false, true, "=N(A1)");
                 Assert.AreEqual(0, actual);
             }
         }
@@ -433,7 +433,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             {
                 var ws = wb.AddWorksheet("Sheet");
                 ws.Cell("A1").Value = true;
-                var actual = ws.Evaluate(true, "=N(A1)");
+                var actual = ws.Evaluate(false, true, "=N(A1)");
                 Assert.AreEqual(1, actual);
             }
         }
