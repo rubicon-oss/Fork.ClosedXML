@@ -98,14 +98,15 @@ namespace ClosedXML.Excel.CalcEngine
                 if (_optimize)
                     expr = expr.Optimize();
 
-                result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Max(0, _ptr)), expr));
-
                 if (_token.ID == TKID.COMMA)
                 {
+                    result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Max(0, _ptr - 1)), expr));
                     _expr = _expr.Substring(Math.Min(_ptr, _expr.Length));
                     _len = _expr.Length;
                     _ptr = 0;
                 }
+                else
+                    result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Max(0, _ptr)), expr));
             }
             while (_token.ID != TKID.END);
 
