@@ -66,7 +66,7 @@ namespace ClosedXML_Tests.Excel
                 Assert.AreEqual("IF(Rohdaten!$A$2<5,'Tabelle 1'!$A$1:$C$40,'Tabelle 1'!$A$1:$C$80)", table1PrintAreas[0]);
 
                 var table2PrintAreas = wb.Worksheets.Worksheet("Tabelle 2").PageSetup.PrintAreas.ToArray();
-                Assert.AreEqual(1, table2PrintAreas.Length);
+                Assert.AreEqual(2, table2PrintAreas.Length);
                 Assert.AreEqual("IF(Rohdaten!$A$2<5,'Tabelle 2'!$A$1:$C$40,'Tabelle 2'!$A$1:$C$80)", table2PrintAreas[0]);
                 Assert.AreEqual("'Tabelle 2'!$J$17:$M$29", table2PrintAreas[1]);
 
