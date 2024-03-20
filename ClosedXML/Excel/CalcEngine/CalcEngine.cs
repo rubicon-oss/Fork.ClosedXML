@@ -100,13 +100,13 @@ namespace ClosedXML.Excel.CalcEngine
 
                 if (_token.ID == TKID.COMMA)
                 {
-                    result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Max(0, _ptr - 1)), expr));
+                    result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Min(Math.Max(0, _ptr - 1), _expr.Length)), expr));
                     _expr = _expr.Substring(Math.Min(_ptr, _expr.Length));
                     _len = _expr.Length;
                     _ptr = 0;
                 }
                 else
-                    result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Max(0, _ptr)), expr));
+                    result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Min(Math.Max(0, _ptr), _expr.Length)), expr));
             }
             while (_token.ID != TKID.END);
 
