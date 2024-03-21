@@ -748,7 +748,7 @@ namespace ClosedXML.Excel
                                              XLReferenceStyle.A1) +
                                      ","));
 
-                        definedNameText.Substring(0, definedNameText.Length - 1);
+                        definedNameText = definedNameText.Substring(0, definedNameText.Length - 1);
                     }
 
                     if (workSheetPrintAreasByExpression.Any())
@@ -796,6 +796,7 @@ namespace ClosedXML.Excel
 
                     if (!String.IsNullOrWhiteSpace(nr.Comment))
                         definedName.Comment = nr.Comment;
+
                     definedNames.AppendChild(definedName);
                 }
 
