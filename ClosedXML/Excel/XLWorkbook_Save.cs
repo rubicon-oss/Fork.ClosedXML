@@ -738,7 +738,6 @@ namespace ClosedXML.Excel
                             worksheet.PageSetup.PrintAreas.Aggregate(String.Empty,
                                 (current, printArea) =>
                                     current +
-                                    printArea +
                                     ("'" + worksheetName + "'!" +
                                      printArea.RangeAddress.
                                          FirstAddress.ToStringFixed(
