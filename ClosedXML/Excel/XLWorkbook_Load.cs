@@ -1115,7 +1115,7 @@ namespace ClosedXML.Excel
 
         private void SetPrintAreaViaReference(UInt32 localSheetId, ExpressionWithString expression)
         {
-            // TODO: If Expression is simple Range add via old method?
+            // TODO (roman.brandstetter): check this via all tests
             if (expression.Expression is XObjectExpression)
                 WorksheetsInternal.Worksheet((int)(localSheetId + 1)).PageSetup.PrintAreas.Add(expression.ExpressionString);
             else

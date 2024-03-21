@@ -20,6 +20,8 @@ namespace ClosedXML.Excel
         /// <param name="rangeAddress">The range expression to add.</param>
         internal void Add(ExpressionWithString expression);
 
+        internal ExpressionWithString[] GetExpressions();
+
         /// <summary>Adds a range to the print areas.</summary>
         /// <param name="rangeAddress">The range address to add.</param>
         void Add(String rangeAddress);

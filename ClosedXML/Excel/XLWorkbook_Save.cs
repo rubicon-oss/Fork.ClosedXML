@@ -725,25 +725,44 @@ namespace ClosedXML.Excel
                     sheetId++;
                 }
 
-                if (worksheet.PageSetup.PrintAreas.Any())
+                var workSheetPrintAreasByExpression = worksheet.PageSetup.PrintAreas.GetExpressions();
+                if (worksheet.PageSetup.PrintAreas.Any() || workSheetPrintAreasByExpression.Any())
                 {
                     var definedName = new DefinedName { Name = "_xlnm.Print_Area", LocalSheetId = sheetId };
                     var worksheetName = worksheet.Name;
-                    var definedNameText = worksheet.PageSetup.PrintAreas.Aggregate(String.Empty,
-                        (current, printArea) =>
-                            current +
-                            printArea +
-                             // TODO: do this when adding ranges to PrintArea
-                             //("'" + worksheetName + "'!" +
-                             // printArea.RangeAddress.
-                             //     FirstAddress.ToStringFixed(
-                             //         XLReferenceStyle.A1) +
-                             // ":" +
-                             // printArea.RangeAddress.
-                             //     LastAddress.ToStringFixed(
-                             //         XLReferenceStyle.A1) +
-                             ",");
-                    definedName.Text = definedNameText.Substring(0, definedNameText.Length - 1);
+
+                    string definedNameText = null;
+                    if (worksheet.PageSetup.PrintAreas.Any())
+                    {
+                        definedNameText =
+                            worksheet.PageSetup.PrintAreas.Aggregate(String.Empty,
+                                (current, printArea) =>
+                                    current +
+                                    printArea +
+                                    ("'" + worksheetName + "'!" +
+                                     printArea.RangeAddress.
+                                         FirstAddress.ToStringFixed(
+                                             XLReferenceStyle.A1) +
+                                     ":" +
+                                     printArea.RangeAddress.
+                                         LastAddress.ToStringFixed(
+                                             XLReferenceStyle.A1) +
+                                     ","));
+
+                        definedNameText.Substring(0, definedNameText.Length - 1);
+                    }
+
+                    if (workSheetPrintAreasByExpression.Any())
+                    {
+                        var aggregatedExpressions = string.Join(",", workSheetPrintAreasByExpression.Select(_ => _.ExpressionString));
+
+                        if (string.IsNullOrEmpty(definedNameText))
+                            definedNameText = aggregatedExpressions;
+                        else
+                            definedNameText += "," + aggregatedExpressions;
+                    }
+
+                    definedName.Text = definedNameText;
                     definedNames.AppendChild(definedName);
                 }
 
@@ -4827,6 +4846,7 @@ namespace ClosedXML.Excel
                 worksheetPart.Worksheet.InsertAfter(new RowBreaks(), previousElement);
             }
 
+            // TODO (roman.brandstetter): check this
             var rowBreaks = worksheetPart.Worksheet.Elements<RowBreaks>().First();
 
             var rowBreakCount = xlWorksheet.PageSetup.RowBreaks.Count;

@@ -18,22 +18,23 @@ namespace ClosedXML.Excel
         public XLPrintAreas(XLPrintAreas defaultPrintAreas, XLWorksheet worksheet)
         {
             ranges = defaultPrintAreas.ranges.ToList();
+            expressionRanges = defaultPrintAreas.expressionRanges.ToList();
             this.worksheet = worksheet;
         }
 
         public void Clear()
         {
             ranges.Clear();
+            expressionRanges.Clear();
         }
+
+        void IXLPrintAreas.Add(ExpressionWithString expression) => expressionRanges.Add(expression);
+
+        ExpressionWithString[] IXLPrintAreas.GetExpressions() => [.. expressionRanges];
 
         public void Add(int firstCellRow, int firstCellColumn, int lastCellRow, int lastCellColumn)
         {
             ranges.Add(worksheet.Range(firstCellRow, firstCellColumn, lastCellRow, lastCellColumn));
-        }
-
-        void IXLPrintAreas.Add(ExpressionWithString expression)
-        {
-            expressionRanges.Add(expression);
         }
 
         public void Add(string rangeAddress)

@@ -131,7 +131,7 @@ namespace ClosedXML.Excel.CalcEngine
                     ? _cache[expression]
                     : Parse(expression);
 
-            // TODO: needs to be tested or removed since its probably not used
+            // TODO (roman.brandstetter): needs to be tested or removed since its probably not used
             if (x.Length > 1 && !allowMultipleExpressions)
                 Throw("Multiple expressions are not allowed");
 
