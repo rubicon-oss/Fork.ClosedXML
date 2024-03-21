@@ -24,15 +24,15 @@ namespace ClosedXML.Excel.CalcEngine
         }
 
         // gets the parsed version of a string expression
-        public Tuple<string, Expression>[] this[string expression]
+        public ExpressionWithString[] this[string expression]
         {
             get
             {
-                Tuple<string, Expression>[] x;
+                ExpressionWithString[] x;
                 WeakReference wr;
                 if (_dct.TryGetValue(expression, out wr) && wr.IsAlive)
                 {
-                    x = wr.Target as Tuple<string, Expression>[];
+                    x = wr.Target as ExpressionWithString[];
                 }
                 else
                 {

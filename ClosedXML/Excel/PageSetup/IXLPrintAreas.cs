@@ -1,9 +1,10 @@
+using ClosedXML.Excel.CalcEngine;
 using System;
 using System.Collections.Generic;
 
 namespace ClosedXML.Excel
 {
-    public interface IXLPrintAreas : IEnumerable<string>
+    public interface IXLPrintAreas : IEnumerable<IXLRange>
     {
         /// <summary>Removes the print areas from the worksheet.</summary>
         void Clear();
@@ -17,7 +18,7 @@ namespace ClosedXML.Excel
 
         /// <summary>Adds an expression to the print areas.</summary>
         /// <param name="rangeAddress">The range expression to add.</param>
-        void AddExpression(string expression);
+        internal void Add(ExpressionWithString expression);
 
         /// <summary>Adds a range to the print areas.</summary>
         /// <param name="rangeAddress">The range address to add.</param>

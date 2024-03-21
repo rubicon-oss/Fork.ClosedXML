@@ -1060,7 +1060,7 @@ namespace ClosedXML.Excel
 
                         foreach (var expression in expressions)
                         {
-                            SetPrintAreaViaReference(definedName.LocalSheetId, expression.Item1);
+                            SetPrintAreaViaReference(definedName.LocalSheetId, expression);
                         }
                     }
                     catch (Exception)
@@ -1081,7 +1081,7 @@ namespace ClosedXML.Excel
                                 ParseReference(area, out sheetName, out sheetArea);
 
                                 if (!(sheetArea.Equals("#REF") || sheetArea.EndsWith("#REF!") || sheetArea.Length == 0))
-                                    WorksheetsInternal.Worksheet(sheetName).PageSetup.PrintAreas.Add(area);
+                                    WorksheetsInternal.Worksheet(sheetName).PageSetup.PrintAreas.Add(sheetArea);
                             }
                         }
                     }
@@ -1113,9 +1113,13 @@ namespace ClosedXML.Excel
             }
         }
 
-        private void SetPrintAreaViaReference(UInt32 localSheetId, string area)
+        private void SetPrintAreaViaReference(UInt32 localSheetId, ExpressionWithString expression)
         {
-            WorksheetsInternal.Worksheet((int)(localSheetId + 1)).PageSetup.PrintAreas.AddExpression(area);
+            // TODO: If Expression is simple Range add via old method?
+            if (expression.Expression is XObjectExpression)
+                WorksheetsInternal.Worksheet((int)(localSheetId + 1)).PageSetup.PrintAreas.Add(expression.ExpressionString);
+            else
+                WorksheetsInternal.Worksheet((int)(localSheetId + 1)).PageSetup.PrintAreas.Add(expression);
         }
 
         private static readonly Regex definedNameRegex = new Regex(@"\A('.*'|[^ ]+)!.*\z", RegexOptions.Compiled);

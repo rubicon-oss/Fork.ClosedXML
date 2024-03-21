@@ -8,6 +8,18 @@ using System.Threading;
 
 namespace ClosedXML.Excel.CalcEngine
 {
+    internal class ExpressionWithString
+    {
+        public string ExpressionString { get; }
+        public Expression Expression { get; }
+
+        public ExpressionWithString(string expressionString, Expression expression)
+        {
+            ExpressionString = expressionString;
+            Expression = expression;
+        }
+    }
+
     internal abstract class ExpressionBase
     {
         public abstract string LastParseItem { get; }

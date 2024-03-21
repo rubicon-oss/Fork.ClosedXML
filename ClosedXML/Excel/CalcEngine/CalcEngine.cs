@@ -68,7 +68,7 @@ namespace ClosedXML.Excel.CalcEngine
         /// </summary>
         /// <param name="expression">String to parse.</param>
         /// <returns>An <see cref="Expression"/> object that can be evaluated.</returns>
-        public Tuple<string, Expression>[] Parse(string expression)
+        public ExpressionWithString[] Parse(string expression)
         {
             // initialize
             _expr = expression;
@@ -83,7 +83,7 @@ namespace ClosedXML.Excel.CalcEngine
             while (_len > _ptr && _expr[_ptr] == '+')
                 _ptr++;
 
-            var result = new List<Tuple<string, Expression>>();
+            var result = new List<ExpressionWithString>();
 
             // parse the expression
             do
@@ -100,13 +100,13 @@ namespace ClosedXML.Excel.CalcEngine
 
                 if (_token.ID == TKID.COMMA)
                 {
-                    result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Min(Math.Max(0, _ptr - 1), _expr.Length)), expr));
+                    result.Add(new ExpressionWithString(_expr.Substring(0, Math.Min(Math.Max(0, _ptr - 1), _expr.Length)), expr));
                     _expr = _expr.Substring(Math.Min(_ptr, _expr.Length));
                     _len = _expr.Length;
                     _ptr = 0;
                 }
                 else
-                    result.Add(new Tuple<string, Expression>(_expr.Substring(0, Math.Min(Math.Max(0, _ptr), _expr.Length)), expr));
+                    result.Add(new ExpressionWithString(_expr.Substring(0, Math.Min(Math.Max(0, _ptr), _expr.Length)), expr));
             }
             while (_token.ID != TKID.END);
 
@@ -136,9 +136,9 @@ namespace ClosedXML.Excel.CalcEngine
                 Throw("Multiple expressions are not allowed");
 
             if (x.Length > 1)
-                return x.Select(_ => _.Item2.Evaluate(resolveCellReference)).ToArray();
+                return x.Select(_ => _.Expression.Evaluate(resolveCellReference)).ToArray();
             else
-                return x.First().Item2.Evaluate(resolveCellReference);
+                return x.First().Expression.Evaluate(resolveCellReference);
         }
 
         /// <summary>
