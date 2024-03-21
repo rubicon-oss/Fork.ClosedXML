@@ -259,7 +259,7 @@ namespace ClosedXML.Excel.CalcEngine
 
         private static object _Text(List<Expression> p)
         {
-            var value = p[0].Evaluate(true);
+            var value = p[0].Evaluate();
 
             // Input values of type string don't get any formatting applied.
             if (value is string) return value;

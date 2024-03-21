@@ -1525,10 +1525,9 @@ namespace ClosedXML.Excel
             get { return _calcEngine ?? (_calcEngine = new XLCalcEngine(this)); }
         }
 
-        // TODO (roman.brandstetter): probably remove allowMultipleExpressions
-        public Object Evaluate(bool allowMultipleExpressions, bool resolveCellReference, String expression)
+        public Object Evaluate(String expression)
         {
-            return CalcEngine.Evaluate(allowMultipleExpressions, resolveCellReference, expression);
+            return CalcEngine.Evaluate(expression);
         }
 
         public String Author { get; set; }

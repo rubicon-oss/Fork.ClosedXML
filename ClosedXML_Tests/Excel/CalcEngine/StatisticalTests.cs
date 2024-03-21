@@ -15,14 +15,14 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         public void Average()
         {
             double value;
-            value = workbook.Evaluate(false, true, "AVERAGE(-27.5,93.93,64.51,-70.56)").CastTo<double>();
+            value = workbook.Evaluate("AVERAGE(-27.5,93.93,64.51,-70.56)").CastTo<double>();
             Assert.AreEqual(15.095, value, tolerance);
 
             var ws = workbook.Worksheets.First();
-            value = ws.Evaluate(false, true, "AVERAGE(G3:G45)").CastTo<double>();
+            value = ws.Evaluate("AVERAGE(G3:G45)").CastTo<double>();
             Assert.AreEqual(49.3255814, value, tolerance);
 
-            Assert.That(() => ws.Evaluate(false, true, "AVERAGE(D3:D45)"), Throws.TypeOf<ApplicationException>());
+            Assert.That(() => ws.Evaluate("AVERAGE(D3:D45)"), Throws.TypeOf<ApplicationException>());
         }
 
         [Test]
@@ -30,16 +30,16 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             int value;
-            value = ws.Evaluate(false, true, @"=COUNT(D3:D45)").CastTo<int>();
+            value = ws.Evaluate(@"=COUNT(D3:D45)").CastTo<int>();
             Assert.AreEqual(0, value);
 
-            value = ws.Evaluate(false, true, @"=COUNT(G3:G45)").CastTo<int>();
+            value = ws.Evaluate(@"=COUNT(G3:G45)").CastTo<int>();
             Assert.AreEqual(43, value);
 
-            value = ws.Evaluate(false, true, @"=COUNT(G:G)").CastTo<int>();
+            value = ws.Evaluate(@"=COUNT(G:G)").CastTo<int>();
             Assert.AreEqual(43, value);
 
-            value = workbook.Evaluate(false, true, @"=COUNT(Data!G:G)").CastTo<int>();
+            value = workbook.Evaluate(@"=COUNT(Data!G:G)").CastTo<int>();
             Assert.AreEqual(43, value);
         }
 
@@ -48,16 +48,16 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             int value;
-            value = ws.Evaluate(false, true, @"=COUNTA(D3:D45)").CastTo<int>();
+            value = ws.Evaluate(@"=COUNTA(D3:D45)").CastTo<int>();
             Assert.AreEqual(43, value);
 
-            value = ws.Evaluate(false, true, @"=COUNTA(G3:G45)").CastTo<int>();
+            value = ws.Evaluate(@"=COUNTA(G3:G45)").CastTo<int>();
             Assert.AreEqual(43, value);
 
-            value = ws.Evaluate(false, true, @"=COUNTA(G:G)").CastTo<int>();
+            value = ws.Evaluate(@"=COUNTA(G:G)").CastTo<int>();
             Assert.AreEqual(44, value);
 
-            value = workbook.Evaluate(false, true, @"=COUNTA(Data!G:G)").CastTo<int>();
+            value = workbook.Evaluate(@"=COUNTA(Data!G:G)").CastTo<int>();
             Assert.AreEqual(44, value);
         }
 
@@ -66,13 +66,13 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             int value;
-            value = ws.Evaluate(false, true, @"=COUNTBLANK(B:B)").CastTo<int>();
+            value = ws.Evaluate(@"=COUNTBLANK(B:B)").CastTo<int>();
             Assert.AreEqual(1048532, value);
 
-            value = ws.Evaluate(false, true, @"=COUNTBLANK(D43:D49)").CastTo<int>();
+            value = ws.Evaluate(@"=COUNTBLANK(D43:D49)").CastTo<int>();
             Assert.AreEqual(4, value);
 
-            value = workbook.Evaluate(false, true, @"=COUNTBLANK(E3:E45)").CastTo<int>();
+            value = workbook.Evaluate(@"=COUNTBLANK(E3:E45)").CastTo<int>();
             Assert.AreEqual(0, value);
         }
 
@@ -81,13 +81,13 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             int value;
-            value = ws.Evaluate(false, true, @"=COUNTIF(D3:D45,""Central"")").CastTo<int>();
+            value = ws.Evaluate(@"=COUNTIF(D3:D45,""Central"")").CastTo<int>();
             Assert.AreEqual(24, value);
 
-            value = ws.Evaluate(false, true, @"=COUNTIF(D:D,""Central"")").CastTo<int>();
+            value = ws.Evaluate(@"=COUNTIF(D:D,""Central"")").CastTo<int>();
             Assert.AreEqual(24, value);
 
-            value = workbook.Evaluate(false, true, @"=COUNTIF(Data!D:D,""Central"")").CastTo<int>();
+            value = workbook.Evaluate(@"=COUNTIF(Data!D:D,""Central"")").CastTo<int>();
             Assert.AreEqual(24, value);
         }
 
@@ -110,16 +110,16 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             int value;
-            value = ws.Evaluate(false, true, @"=MAX(D3:D45)").CastTo<int>();
+            value = ws.Evaluate(@"=MAX(D3:D45)").CastTo<int>();
             Assert.AreEqual(0, value);
 
-            value = ws.Evaluate(false, true, @"=MAX(G3:G45)").CastTo<int>();
+            value = ws.Evaluate(@"=MAX(G3:G45)").CastTo<int>();
             Assert.AreEqual(96, value);
 
-            value = ws.Evaluate(false, true, @"=MAX(G:G)").CastTo<int>();
+            value = ws.Evaluate(@"=MAX(G:G)").CastTo<int>();
             Assert.AreEqual(96, value);
 
-            value = workbook.Evaluate(false, true, @"=MAX(Data!G:G)").CastTo<int>();
+            value = workbook.Evaluate(@"=MAX(Data!G:G)").CastTo<int>();
             Assert.AreEqual(96, value);
         }
 
@@ -128,16 +128,16 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             int value;
-            value = ws.Evaluate(false, true, @"=MIN(D3:D45)").CastTo<int>();
+            value = ws.Evaluate(@"=MIN(D3:D45)").CastTo<int>();
             Assert.AreEqual(0, value);
 
-            value = ws.Evaluate(false, true, @"=MIN(G3:G45)").CastTo<int>();
+            value = ws.Evaluate(@"=MIN(G3:G45)").CastTo<int>();
             Assert.AreEqual(2, value);
 
-            value = ws.Evaluate(false, true, @"=MIN(G:G)").CastTo<int>();
+            value = ws.Evaluate(@"=MIN(G:G)").CastTo<int>();
             Assert.AreEqual(2, value);
 
-            value = workbook.Evaluate(false, true, @"=MIN(Data!G:G)").CastTo<int>();
+            value = workbook.Evaluate(@"=MIN(Data!G:G)").CastTo<int>();
             Assert.AreEqual(2, value);
         }
 
@@ -146,15 +146,15 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             double value;
-            Assert.That(() => ws.Evaluate(false, true, @"=STDEV(D3:D45)"), Throws.TypeOf<ApplicationException>());
+            Assert.That(() => ws.Evaluate(@"=STDEV(D3:D45)"), Throws.TypeOf<ApplicationException>());
 
-            value = ws.Evaluate(false, true, @"=STDEV(H3:H45)").CastTo<double>();
+            value = ws.Evaluate(@"=STDEV(H3:H45)").CastTo<double>();
             Assert.AreEqual(47.34511769, value, tolerance);
 
-            value = ws.Evaluate(false, true, @"=STDEV(H:H)").CastTo<double>();
+            value = ws.Evaluate(@"=STDEV(H:H)").CastTo<double>();
             Assert.AreEqual(47.34511769, value, tolerance);
 
-            value = workbook.Evaluate(false, true, @"=STDEV(Data!H:H)").CastTo<double>();
+            value = workbook.Evaluate(@"=STDEV(Data!H:H)").CastTo<double>();
             Assert.AreEqual(47.34511769, value, tolerance);
         }
 
@@ -163,15 +163,15 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             double value;
-            Assert.That(() => ws.Evaluate(false, true, @"=STDEVP(D3:D45)"), Throws.InvalidOperationException);
+            Assert.That(() => ws.Evaluate(@"=STDEVP(D3:D45)"), Throws.InvalidOperationException);
 
-            value = ws.Evaluate(false, true, @"=STDEVP(H3:H45)").CastTo<double>();
+            value = ws.Evaluate(@"=STDEVP(H3:H45)").CastTo<double>();
             Assert.AreEqual(46.79135458, value, tolerance);
 
-            value = ws.Evaluate(false, true, @"=STDEVP(H:H)").CastTo<double>();
+            value = ws.Evaluate(@"=STDEVP(H:H)").CastTo<double>();
             Assert.AreEqual(46.79135458, value, tolerance);
 
-            value = workbook.Evaluate(false, true, @"=STDEVP(Data!H:H)").CastTo<double>();
+            value = workbook.Evaluate(@"=STDEVP(Data!H:H)").CastTo<double>();
             Assert.AreEqual(46.79135458, value, tolerance);
         }
 
@@ -180,15 +180,15 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             double value;
-            Assert.That(() => ws.Evaluate(false, true, @"=VAR(D3:D45)"), Throws.InvalidOperationException);
+            Assert.That(() => ws.Evaluate(@"=VAR(D3:D45)"), Throws.InvalidOperationException);
 
-            value = ws.Evaluate(false, true, @"=VAR(H3:H45)").CastTo<double>();
+            value = ws.Evaluate(@"=VAR(H3:H45)").CastTo<double>();
             Assert.AreEqual(2241.560169, value, tolerance);
 
-            value = ws.Evaluate(false, true, @"=VAR(H:H)").CastTo<double>();
+            value = ws.Evaluate(@"=VAR(H:H)").CastTo<double>();
             Assert.AreEqual(2241.560169, value, tolerance);
 
-            value = workbook.Evaluate(false, true, @"=VAR(Data!H:H)").CastTo<double>();
+            value = workbook.Evaluate(@"=VAR(Data!H:H)").CastTo<double>();
             Assert.AreEqual(2241.560169, value, tolerance);
         }
 
@@ -197,15 +197,15 @@ namespace ClosedXML_Tests.Excel.CalcEngine
         {
             var ws = workbook.Worksheets.First();
             double value;
-            Assert.That(() => ws.Evaluate(false, true, @"=VARP(D3:D45)"), Throws.InvalidOperationException);
+            Assert.That(() => ws.Evaluate(@"=VARP(D3:D45)"), Throws.InvalidOperationException);
 
-            value = ws.Evaluate(false, true, @"=VARP(H3:H45)").CastTo<double>();
+            value = ws.Evaluate(@"=VARP(H3:H45)").CastTo<double>();
             Assert.AreEqual(2189.430863, value, tolerance);
 
-            value = ws.Evaluate(false, true, @"=VARP(H:H)").CastTo<double>();
+            value = ws.Evaluate(@"=VARP(H:H)").CastTo<double>();
             Assert.AreEqual(2189.430863, value, tolerance);
 
-            value = workbook.Evaluate(false, true, @"=VARP(Data!H:H)").CastTo<double>();
+            value = workbook.Evaluate(@"=VARP(Data!H:H)").CastTo<double>();
             Assert.AreEqual(2189.430863, value, tolerance);
         }
 

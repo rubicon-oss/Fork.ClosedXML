@@ -49,7 +49,7 @@ namespace ClosedXML.Excel.CalcEngine
             }
 
             // handle expressions
-            var val = e.Evaluate(true);
+            var val = e.Evaluate();
             var valEnumerable = val as IEnumerable;
             if (valEnumerable == null || val is string)
                 _list.Add(val);

@@ -131,7 +131,7 @@ namespace ClosedXML.Excel.CalcEngine
                 }
                 else
                 {
-                    if (IsBlank(e.Evaluate(true)))
+                    if (IsBlank(e.Evaluate()))
                         cnt++;
                 }
             }
@@ -152,7 +152,7 @@ namespace ClosedXML.Excel.CalcEngine
             var ienum = p[0] as IEnumerable;
             if (ienum != null)
             {
-                var criteria = (string)p[1].Evaluate(true);
+                var criteria = (string)p[1].Evaluate();
                 foreach (var value in ienum)
                 {
                     if (!IsBlank(value))

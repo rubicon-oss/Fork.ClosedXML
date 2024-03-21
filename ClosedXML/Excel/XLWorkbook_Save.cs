@@ -4846,7 +4846,6 @@ namespace ClosedXML.Excel
                 worksheetPart.Worksheet.InsertAfter(new RowBreaks(), previousElement);
             }
 
-            // TODO (roman.brandstetter): check this
             var rowBreaks = worksheetPart.Worksheet.Elements<RowBreaks>().First();
 
             var rowBreakCount = xlWorksheet.PageSetup.RowBreaks.Count;

@@ -125,20 +125,13 @@ namespace ClosedXML.Excel.CalcEngine
         /// method and then using the Expression.Evaluate method to evaluate
         /// the parsed expression.
         /// </remarks>
-        public object Evaluate(bool allowMultipleExpressions, bool resolveCellReference, string expression)
+        public object Evaluate(string expression)
         {
             var x = _cache != null
                     ? _cache[expression]
                     : Parse(expression);
 
-            // TODO (roman.brandstetter): needs to be tested or removed since its probably not used
-            if (x.Length > 1 && !allowMultipleExpressions)
-                Throw("Multiple expressions are not allowed");
-
-            if (x.Length > 1)
-                return x.Select(_ => _.Expression.Evaluate(resolveCellReference)).ToArray();
-            else
-                return x.First().Expression.Evaluate(resolveCellReference);
+            return x.First().Expression.Evaluate();
         }
 
         /// <summary>

@@ -40,7 +40,7 @@ namespace ClosedXML.Excel.CalcEngine.Functions
 
         private static object ErrorType(List<Expression> p)
         {
-            var v = p[0].Evaluate(true);
+            var v = p[0].Evaluate();
 
             if (v is ErrorExpression.ExpressionErrorType)
                 return errorTypes[(ErrorExpression.ExpressionErrorType)v];
@@ -64,7 +64,7 @@ namespace ClosedXML.Excel.CalcEngine.Functions
 
         private static object IsErr(List<Expression> p)
         {
-            var v = p[0].Evaluate(true);
+            var v = p[0].Evaluate();
 
             return v is ErrorExpression.ExpressionErrorType
                 && ((ErrorExpression.ExpressionErrorType)v) != ErrorExpression.ExpressionErrorType.NoValueAvailable;
@@ -72,14 +72,14 @@ namespace ClosedXML.Excel.CalcEngine.Functions
 
         private static object IsError(List<Expression> p)
         {
-            var v = p[0].Evaluate(true);
+            var v = p[0].Evaluate();
 
             return v is ErrorExpression.ExpressionErrorType;
         }
 
         private static object IsEven(List<Expression> p)
         {
-            var v = p[0].Evaluate(true);
+            var v = p[0].Evaluate();
             if (v is double)
             {
                 return Math.Abs((double)v % 2) < 1;
@@ -90,7 +90,7 @@ namespace ClosedXML.Excel.CalcEngine.Functions
 
         private static object IsLogical(List<Expression> p)
         {
-            var v = p[0].Evaluate(true);
+            var v = p[0].Evaluate();
             var isLogical = v is bool;
 
             if (isLogical && p.Count > 1)
@@ -104,7 +104,7 @@ namespace ClosedXML.Excel.CalcEngine.Functions
 
         private static object IsNa(List<Expression> p)
         {
-            var v = p[0].Evaluate(true);
+            var v = p[0].Evaluate();
 
             return v is ErrorExpression.ExpressionErrorType
                 && ((ErrorExpression.ExpressionErrorType)v) == ErrorExpression.ExpressionErrorType.NoValueAvailable;
@@ -117,7 +117,7 @@ namespace ClosedXML.Excel.CalcEngine.Functions
 
         private static object IsNumber(List<Expression> p)
         {
-            var v = p[0].Evaluate(true);
+            var v = p[0].Evaluate();
 
             var isNumber = v is double; //Normal number formatting
             if (!isNumber)

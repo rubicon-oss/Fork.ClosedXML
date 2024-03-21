@@ -195,7 +195,7 @@ namespace ClosedXML_Tests.Excel.DataValidations
                 .CellBelow().SetValue(new DateTime(2008, 11, 26))
                 .CellBelow().SetValue(new DateTime(2008, 12, 4))
                 .CellBelow().SetValue(new DateTime(2009, 1, 21));
-            Object actual = ws.Evaluate(false, true, "Networkdays(A2,A3,A4:A6)");
+            Object actual = ws.Evaluate("Networkdays(A2,A3,A4:A6)");
             Assert.AreEqual(105, actual);
         }
 
@@ -424,7 +424,7 @@ namespace ClosedXML_Tests.Excel.DataValidations
                 .CellBelow().SetValue(new DateTime(2008, 11, 26))
                 .CellBelow().SetValue(new DateTime(2008, 12, 4))
                 .CellBelow().SetValue(new DateTime(2009, 1, 21));
-            Object actual = ws.Evaluate(false, true, "Workday(A2,A3,A4:A6)");
+            Object actual = ws.Evaluate("Workday(A2,A3,A4:A6)");
             Assert.AreEqual(new DateTime(2009, 5, 5), actual);
         }
 

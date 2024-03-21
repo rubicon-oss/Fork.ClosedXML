@@ -132,7 +132,7 @@ namespace ClosedXML.Excel.CalcEngine
 
         private static object Csch(List<Expression> p)
         {
-            if (Math.Abs((double)p[0].Evaluate(true)) < Double.Epsilon)
+            if (Math.Abs((double)p[0].Evaluate()) < Double.Epsilon)
                 throw new DivisionByZeroException();
 
             return 1 / Math.Sinh(p[0]);
@@ -290,7 +290,7 @@ namespace ClosedXML.Excel.CalcEngine
             // get parameters
             var range = p[0] as IEnumerable;
             var sumRange = p.Count < 3 ? range : p[2] as IEnumerable;
-            var criteria = p[1].Evaluate(true);
+            var criteria = p[1].Evaluate();
 
             // build list of values in range and sumRange
             var rangeValues = new List<object>();

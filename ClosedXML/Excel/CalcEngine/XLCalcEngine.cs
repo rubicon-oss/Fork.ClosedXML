@@ -102,7 +102,7 @@ namespace ClosedXML.Excel.CalcEngine
                 if (String.IsNullOrWhiteSpace(f))
                     return cell.Value;
                 else
-                    return new XLCalcEngine(cell.Worksheet).Evaluate(false, true, f);
+                    return new XLCalcEngine(cell.Worksheet).Evaluate(f);
             }
             finally
             {

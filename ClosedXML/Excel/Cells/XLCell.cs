@@ -385,7 +385,7 @@ namespace ClosedXML.Excel
                         )
                         return _worksheet.Workbook.Worksheet(sName).Cell(cAddress).Value;
 
-                    var retVal = Worksheet.Evaluate(false, true, fA1);
+                    var retVal = Worksheet.Evaluate(fA1);
                     var retValEnumerable = retVal as IEnumerable;
 
                     if (retValEnumerable != null && !(retVal is String))

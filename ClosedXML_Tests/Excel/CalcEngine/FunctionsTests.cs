@@ -442,7 +442,7 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             ws.Cell("A5").FormulaA1 = "1/FACT(4)";
             ws.Cell("A6").FormulaA1 = "-1/FACT(6)";
 
-            actual = ws.Evaluate(false, true, "SERIESSUM(A2,0,2,A3:A6)");
+            actual = ws.Evaluate("SERIESSUM(A2,0,2,A3:A6)");
             Assert.IsTrue(Math.Abs(0.70710321482284566 - (double)actual) < XLHelper.Epsilon);
         }
 
@@ -626,16 +626,16 @@ namespace ClosedXML_Tests.Excel.CalcEngine
             using (var wb = new XLWorkbook())
             {
                 object value;
-                value = wb.Evaluate(false, true, "=IF(TRUE,1)");
+                value = wb.Evaluate("=IF(TRUE,1)");
                 Assert.AreEqual(1, value);
 
-                value = wb.Evaluate(false, true, "=IF(TRUE,1,)");
+                value = wb.Evaluate("=IF(TRUE,1,)");
                 Assert.AreEqual(1, value);
 
-                value = wb.Evaluate(false, true, "=IF(FALSE,1,)");
+                value = wb.Evaluate("=IF(FALSE,1,)");
                 Assert.AreEqual(false, value);
 
-                value = wb.Evaluate(false, true, "=IF(FALSE,,2)");
+                value = wb.Evaluate("=IF(FALSE,,2)");
                 Assert.AreEqual(2, value);
             }
         }

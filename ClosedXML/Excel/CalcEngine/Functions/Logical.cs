@@ -45,14 +45,14 @@ namespace ClosedXML.Excel.CalcEngine
         {
             if (p[0])
             {
-                return p[1].Evaluate(false);
+                return p[1].Evaluate();
             }
             else if (p.Count > 2)
             {
                 if (p[2] is EmptyValueExpression)
                     return false;
                 else
-                    return p[2].Evaluate(false);
+                    return p[2].Evaluate();
             }
             else return false;
         }
@@ -71,11 +71,11 @@ namespace ClosedXML.Excel.CalcEngine
         {
             try
             {
-                return p[0].Evaluate(false);
+                return p[0].Evaluate();
             }
             catch (ArgumentException)
             {
-                return p[1].Evaluate(false);
+                return p[1].Evaluate();
             }
         }
     }

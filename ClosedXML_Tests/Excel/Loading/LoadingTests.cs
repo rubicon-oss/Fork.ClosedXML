@@ -62,18 +62,24 @@ namespace ClosedXML_Tests.Excel
                 using var wb = new XLWorkbook(stream);
 
                 var table1PrintAreas = wb.Worksheets.Worksheet("Tabelle 1").PageSetup.PrintAreas.ToArray();
-                Assert.AreEqual(1, table1PrintAreas.Length);
-                Assert.AreEqual("IF(Rohdaten!$A$2<5,'Tabelle 1'!$A$1:$C$40,'Tabelle 1'!$A$1:$C$80)", table1PrintAreas[0]);
+                Assert.AreEqual(0, table1PrintAreas.Length);
+                var table1PrintAreaExpressions = wb.Worksheets.Worksheet("Tabelle 1").PageSetup.PrintAreas.GetExpressions();
+                Assert.AreEqual(1, table1PrintAreaExpressions.Length);
+                Assert.AreEqual("IF(Rohdaten!$A$2<5,'Tabelle 1'!$A$1:$C$40,'Tabelle 1'!$A$1:$C$80)", table1PrintAreaExpressions[0].ExpressionString);
 
                 var table2PrintAreas = wb.Worksheets.Worksheet("Tabelle 2").PageSetup.PrintAreas.ToArray();
-                Assert.AreEqual(2, table2PrintAreas.Length);
-                Assert.AreEqual("IF(Rohdaten!$A$2<5,'Tabelle 2'!$A$1:$C$40,'Tabelle 2'!$A$1:$C$80)", table2PrintAreas[0]);
-                Assert.AreEqual("'Tabelle 2'!$J$17:$M$29", table2PrintAreas[1]);
+                var table2PrintAreaExpressions = wb.Worksheets.Worksheet("Tabelle 2").PageSetup.PrintAreas.GetExpressions();
+                Assert.AreEqual(1, table2PrintAreas.Length);
+                Assert.AreEqual("'Tabelle 2'!$J$17:$M$29", table2PrintAreas[0]);
+                Assert.AreEqual(1, table2PrintAreaExpressions.Length);
+                Assert.AreEqual("IF(Rohdaten!$A$2<5,'Tabelle 2'!$A$1:$C$40,'Tabelle 2'!$A$1:$C$80)", table2PrintAreaExpressions[0].ExpressionString);
 
                 var table3PrintAreas = wb.Worksheets.Worksheet("Tabelle 3").PageSetup.PrintAreas.ToArray();
+                var table3PrintAreaExpressions = wb.Worksheets.Worksheet("Tabelle 4").PageSetup.PrintAreas.GetExpressions();
                 Assert.AreEqual(2, table3PrintAreas.Length);
                 Assert.AreEqual("'Tabelle 3'!$C$4:$G$12", table3PrintAreas[0]);
                 Assert.AreEqual("'Tabelle 3'!$F$17:$J$23", table3PrintAreas[1]);
+                Assert.AreEqual(0, table3PrintAreaExpressions.Length);
 
                 using var ms = new MemoryStream();
                 wb.SaveAs(ms, true);
