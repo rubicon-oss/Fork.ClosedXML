@@ -367,11 +367,11 @@ namespace ClosedXML.Excel
                     string cAddress;
                     if (fA1.Contains('!'))
                     {
-                        sName = fA1.Substring(0, fA1.IndexOf('!'));
+                        sName = fA1.Substring(0, fA1.LastIndexOf('!'));
                         if (sName[0] == '\'')
                             sName = sName.Substring(1, sName.Length - 2);
 
-                        cAddress = fA1.Substring(fA1.IndexOf('!') + 1);
+                        cAddress = fA1.Substring(fA1.LastIndexOf('!') + 1);
                     }
                     else
                     {
@@ -2235,7 +2235,7 @@ namespace ClosedXML.Excel
                     var useSheetName = false;
                     if (matchString.Contains('!'))
                     {
-                        sheetName = matchString.Substring(0, matchString.IndexOf('!'));
+                        sheetName = matchString.Substring(0, matchString.LastIndexOf('!'));
                         if (sheetName[0] == '\'')
                             sheetName = sheetName.Substring(1, sheetName.Length - 2);
                         useSheetName = true;
@@ -2245,7 +2245,7 @@ namespace ClosedXML.Excel
 
                     if (String.Compare(sheetName, shiftedWsName, true) == 0)
                     {
-                        var rangeAddress = matchString.Substring(matchString.IndexOf('!') + 1);
+                        var rangeAddress = matchString.Substring(matchString.LastIndexOf('!') + 1);
                         if (!A1ColumnRegex.IsMatch(rangeAddress))
                         {
                             using (var matchRange = worksheetInAction.Workbook.Worksheet(sheetName).Range(rangeAddress))
@@ -2441,7 +2441,7 @@ namespace ClosedXML.Excel
                     var useSheetName = false;
                     if (matchString.Contains('!'))
                     {
-                        sheetName = matchString.Substring(0, matchString.IndexOf('!'));
+                        sheetName = matchString.Substring(0, matchString.LastIndexOf('!'));
                         if (sheetName[0] == '\'')
                             sheetName = sheetName.Substring(1, sheetName.Length - 2);
                         useSheetName = true;
@@ -2451,7 +2451,7 @@ namespace ClosedXML.Excel
 
                     if (String.Compare(sheetName, shiftedRange.Worksheet.Name, true) == 0)
                     {
-                        var rangeAddress = matchString.Substring(matchString.IndexOf('!') + 1);
+                        var rangeAddress = matchString.Substring(matchString.LastIndexOf('!') + 1);
                         if (!A1RowRegex.IsMatch(rangeAddress))
                         {
                             using (var matchRange = worksheetInAction.Workbook.Worksheet(sheetName).Range(rangeAddress))

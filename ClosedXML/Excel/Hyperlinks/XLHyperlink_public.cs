@@ -77,9 +77,9 @@ namespace ClosedXML.Excel
                     return _internalAddress[0] != '\''
                                ? String.Format("{0}!{1}",
                                     _internalAddress
-                                        .Substring(0, _internalAddress.IndexOf('!'))
+                                        .Substring(0, _internalAddress.LastIndexOf('!'))
                                         .WrapSheetNameInQuotesIfRequired(),
-                                    _internalAddress.Substring(_internalAddress.IndexOf('!') + 1))
+                                    _internalAddress.Substring(_internalAddress.LastIndexOf('!') + 1))
                                : _internalAddress;
                 }
                 return String.Format("{0}!{1}", Worksheet.Name.WrapSheetNameInQuotesIfRequired(), _internalAddress);

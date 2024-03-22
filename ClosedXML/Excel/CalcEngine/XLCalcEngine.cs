@@ -31,12 +31,13 @@ namespace ClosedXML.Excel.CalcEngine
                     .Select(part =>
                     {
                         if (part.Contains("!"))
-                            return part.Substring(0, part.IndexOf('!')).ToLower();
+                            return part.Substring(0, part.LastIndexOf('!')).ToLower();
                         else
                             return null;
                     })
                     .Where(sheet => sheet != null)
-                    .Distinct();
+                    .Distinct()
+                    .ToArray();
 
                 if (!referencedSheetNames.Any())
                     return new CellRangeReference(_ws.Range(identifier), this);
