@@ -49,7 +49,11 @@ namespace ClosedXML.Excel.CalcEngine
                     if (!_wb.TryGetWorksheet(referencedSheetNames.Single(), out worksheet))
                         throw new ArgumentOutOfRangeException(referencedSheetNames.Single(), "The required worksheet cannot be found");
 
-                    identifier = identifier.ToLower().Replace(string.Format("{0}!", worksheet.Name.ToLower()), "");
+                    var worksheetNameIndex = 0;
+                    while ((worksheetNameIndex = identifier.IndexOf($"{worksheet.Name}!", StringComparison.OrdinalIgnoreCase)) >= 0)
+                    {
+                        identifier = identifier.Substring(0, worksheetNameIndex) + identifier.Substring(worksheetNameIndex + worksheet.Name.Length + 1);
+                    };
 
                     return new CellRangeReference(worksheet.Range(identifier), this);
                 }

@@ -1056,24 +1056,20 @@ namespace ClosedXML.Excel
                 {
                     try
                     {
-                        var expressions = CalcEngine.Parse(definedName.Text);
-
-                        foreach (var expression in expressions)
-                        {
-                            SetPrintAreaViaReference(definedName.LocalSheetId, expression);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // NOTE: fall back to previous implementation
+                        // NOTE: collect all printAreas first since in the catch block all expressions are parsed and added again if there is a failure in parsing here
+                        var printAreasToAdd = new List<(IXLPrintAreas, string)>();
+                        // NOTE: try previous implementation first in order to be able to adapt ranges via code
                         var fixedNames = validateDefinedNames(definedName.Text.Split(','));
                         foreach (string area in fixedNames)
                         {
                             if (area.Contains("["))
                             {
-                                var ws = Worksheets.FirstOrDefault(w => (w as XLWorksheet).SheetId == definedName.LocalSheetId + 1);
-                                if (ws != null)
-                                    ws.PageSetup.PrintAreas.Add(area);
+                                var worksheetForAdding = Worksheets.FirstOrDefault(w => (w as XLWorksheet).SheetId == definedName.LocalSheetId + 1);
+
+                                if (worksheetForAdding.Range(area) == null)
+                                    throw new ArgumentNullException();
+
+                                printAreasToAdd.Add((worksheetForAdding.PageSetup.PrintAreas, area));
                             }
                             else
                             {
@@ -1081,8 +1077,32 @@ namespace ClosedXML.Excel
                                 ParseReference(area, out sheetName, out sheetArea);
 
                                 if (!(sheetArea.Equals("#REF") || sheetArea.EndsWith("#REF!") || sheetArea.Length == 0))
-                                    WorksheetsInternal.Worksheet(sheetName).PageSetup.PrintAreas.Add(sheetArea);
+                                {
+                                    var worksheetForAdding = WorksheetsInternal.Worksheet(sheetName);
+
+                                    if (worksheetForAdding.Range(sheetArea) == null)
+                                        throw new ArgumentNullException();
+
+                                    printAreasToAdd.Add((worksheetForAdding.PageSetup.PrintAreas, sheetArea));
+                                }
                             }
+                        }
+
+                        foreach (var printAreaToAdd in printAreasToAdd)
+                            printAreaToAdd.Item1.Add(printAreaToAdd.Item2);
+                    }
+                    catch
+                    {
+                        var expressions = ParseDefinedName(definedName);
+
+                        foreach (var expression in expressions)
+                        {
+                            var worksheet = GetWorksheetFromSheetIdOrExpression(definedName.LocalSheetId, expression);
+
+                            if (expression.Expression is XObjectExpression && worksheet.Range(expression.ExpressionString) != null)
+                                worksheet.PageSetup.PrintAreas.Add(expression.ExpressionString);
+                            else
+                                worksheet.PageSetup.PrintAreas.Add(expression);
                         }
                     }
                 }
@@ -1113,12 +1133,35 @@ namespace ClosedXML.Excel
             }
         }
 
-        private void SetPrintAreaViaReference(UInt32 localSheetId, ExpressionWithString expression)
+        private ExpressionWithString[] ParseDefinedName(DefinedName definedName)
         {
-            if (expression.Expression is XObjectExpression)
-                WorksheetsInternal.Worksheet((int)(localSheetId + 1)).PageSetup.PrintAreas.Add(expression.ExpressionString);
+            try
+            {
+                return CalcEngine.Parse(definedName.Text);
+            }
+            catch
+            {
+                // NOTE: fall back to unparseable Expression (for example INDIRECT function).
+                return [new ExpressionWithString(definedName.Text, new Expression())];
+            }
+        }
+
+        private IXLWorksheet GetWorksheetFromSheetIdOrExpression(UInt32Value localSheetId, ExpressionWithString expression)
+        {
+            if (localSheetId == null || !localSheetId.HasValue)
+            {
+                // NOTE: PrintAreas containing a defined name don't always have a set sheetID so the sheet name must be extracted via the expression string.
+
+                // TODO: There is probably a better way to do this by traversing the Expression but unfortunately the CellRangeReference for a formula has no valid Ranges (which is correct but not helpfull here).
+                string sheetName, sheetArea;
+                ParseReference(expression.ExpressionString, out sheetName, out sheetArea);
+
+                return WorksheetsInternal.Worksheet(sheetName);
+            }
             else
-                WorksheetsInternal.Worksheet((int)(localSheetId + 1)).PageSetup.PrintAreas.Add(expression);
+            {
+                return WorksheetsInternal.Worksheet((int)(localSheetId + 1));
+            }
         }
 
         private static readonly Regex definedNameRegex = new Regex(@"\A('.*'|[^ ]+)!.*\z", RegexOptions.Compiled);
@@ -1187,10 +1230,16 @@ namespace ClosedXML.Excel
                 sheetName = string.Empty;
                 sheetArea = item;
             }
-            else
+            else if (sections.Count() == 2)
             {
                 sheetName = sections[0].Replace("\'", "");
                 sheetArea = sections[1];
+            }
+            else
+            {
+                // TODO: add test case with ! in sheet name
+                sheetName = item.Substring(0, item.LastIndexOf('!'));
+                sheetArea = item.Substring(item.LastIndexOf('!'));
             }
         }
 

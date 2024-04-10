@@ -55,7 +55,33 @@ namespace ClosedXML_Tests.Excel
         }
 
         [Test]
-        public void CanLoadAndSavePrintArea()
+        [TestCase("Beispiel Dynamischer Druckbereich.xlsx")]
+        [TestCase("PrintArea.xlsx")]
+        [TestCase("TEST.xlsx")]
+        [TestCase("TF1 Beispiel Dynamischer Druckbereich.xlsx")]
+        [TestCase("TF2 OhneFehler Dynamischer Druckbereich(Name-Name).xlsx")]
+        [TestCase("TF2 Dynamischer Druckbereich(Name-Name).xlsx")]
+        [TestCase("TF3 Dynamischer Druckbereich(C_INDIRECT).xlsx")]
+        [TestCase("Beispiel Dynamischer Druckbereich_Workaround.xlsx")]
+        public void CanLoadAndSavePrintArea(string file)
+        {
+            Assert.Multiple(() =>
+            {
+                using var stream = TestHelper.GetStreamFromResource(TestHelper.GetResourcePath($@"TryToLoad\{file}"));
+                using var wb = new XLWorkbook(stream);
+
+                using var ms1 = new MemoryStream();
+                wb.SaveAs(ms1, true);
+
+                using var wb2 = new XLWorkbook(ms1);
+
+                using var ms2 = new MemoryStream();
+                wb.SaveAs(ms2, true);
+            });
+        }
+
+        [Test]
+        public void CanLoadAndSavePrintArea_Details()
         {
             Assert.Multiple(() =>
             {

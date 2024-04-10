@@ -1485,15 +1485,22 @@ namespace ClosedXML.Excel
             if (rangeAddressStr.Contains("["))
                 return Table(rangeAddressStr.Substring(0, rangeAddressStr.IndexOf("["))) as XLRange;
 
-            if (NamedRanges.Any(n => String.Compare(n.Name, rangeAddressStr, true) == 0))
-                return (XLRange)NamedRange(rangeAddressStr).Ranges.First();
+            var namedRanges = NamedRanges.FirstOrDefault(n =>
+                                           String.Compare(n.Name, rangeAddressStr, true) == 0
+                                           && n.Ranges.Count == 1
+                                           );
 
-            var namedRanges = Workbook.NamedRanges.FirstOrDefault(n =>
+            if (namedRanges != null)
+                return (XLRange)namedRanges.Ranges.First();
+
+            var namedWorkbookRanges = Workbook.NamedRanges.FirstOrDefault(n =>
                                                        String.Compare(n.Name, rangeAddressStr, true) == 0
                                                        && n.Ranges.Count == 1
                                                        );
-            if (namedRanges == null || !namedRanges.Ranges.Any()) return null;
-            return (XLRange)namedRanges.Ranges.First();
+
+            if (namedWorkbookRanges == null) return null;
+
+            return (XLRange)namedWorkbookRanges.Ranges.First();
         }
 
         public IXLRanges MergedRanges

@@ -19,7 +19,7 @@ namespace ClosedXML.Excel.CalcEngine.Functions
             ce.RegisterFunction("HLOOKUP", 3, 4, Hlookup); // Looks in the top row of an array and returns the value of the indicated cell
             //ce.RegisterFunction("HYPERLINK", , Hyperlink); // Creates a shortcut or jump that opens a document stored on a network server, an intranet, or the Internet
             //ce.RegisterFunction("INDEX", , Index); // Uses an index to choose a value from a reference or array
-            //ce.RegisterFunction("INDIRECT", , Indirect); // Returns a reference indicated by a text value
+            //ce.RegisterFunction("INDIRECT", 1, 2, Indirect); // Returns a reference indicated by a text value
             //ce.RegisterFunction("LOOKUP", , Lookup); // Looks up values in a vector or array
             //ce.RegisterFunction("MATCH", , Match); // Looks up values in a reference or array
             //ce.RegisterFunction("OFFSET", , Offset); // Returns a reference offset from a given reference

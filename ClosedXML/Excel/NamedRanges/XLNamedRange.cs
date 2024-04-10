@@ -6,12 +6,12 @@ namespace ClosedXML.Excel
 {
     using System.Text.RegularExpressions;
 
-    internal class XLNamedRange: IXLNamedRange
+    internal class XLNamedRange : IXLNamedRange
     {
-
         private List<String> _rangeList = new List<String>();
         private readonly XLNamedRanges _namedRanges;
-        public XLNamedRange(XLNamedRanges namedRanges , String rangeName, String range,  String comment = null)
+
+        public XLNamedRange(XLNamedRanges namedRanges, String rangeName, String range, String comment = null)
         {
             Visible = true;
             Name = rangeName;
@@ -30,20 +30,30 @@ namespace ClosedXML.Excel
         }
 
         public String Name { get; set; }
+
         public IXLRanges Ranges
         {
             get
             {
+                // TODO: the expression should be parsed here (as is done for the print areas) since there could be a formula in a named range
                 var ranges = new XLRanges();
-                foreach (var rangeToAdd in
-                   from rangeAddress in _rangeList.SelectMany(c=>c.Split(',')).Where(s=>s[0] != '"')
-                   let match = XLHelper.NamedRangeReferenceRegex.Match(rangeAddress)
-                   select
-                       match.Groups["Sheet"].Success
-                       ?  _namedRanges.Workbook.WorksheetsInternal.Worksheet(match.Groups["Sheet"].Value).Range(match.Groups["Range"].Value) as IXLRangeBase
-                       : _namedRanges.Workbook.Worksheets.SelectMany(sheet => sheet.Tables).Single(table => table.Name == match.Groups["Table"].Value).DataRange.Column(match.Groups["Column"].Value) )
+
+                try
                 {
-                    ranges.Add(rangeToAdd);
+                    foreach (var rangeToAdd in
+                       from rangeAddress in _rangeList.SelectMany(c => c.Split(',')).Where(s => s[0] != '"')
+                       let match = XLHelper.NamedRangeReferenceRegex.Match(rangeAddress)
+                       select
+                           match.Groups["Sheet"].Success
+                           ? _namedRanges.Workbook.WorksheetsInternal.Worksheet(match.Groups["Sheet"].Value).Range(match.Groups["Range"].Value) as IXLRangeBase
+                           : _namedRanges.Workbook.Worksheets.SelectMany(sheet => sheet.Tables).Single(table => table.Name == match.Groups["Table"].Value).DataRange.Column(match.Groups["Column"].Value))
+                    {
+                        ranges.Add(rangeToAdd);
+                    }
+                }
+                catch
+                {
+                    // NOTE: expression in the defined name cannot be parsed and must be skipped until expression parsing for defined names is implemented
                 }
                 return ranges;
             }
@@ -64,11 +74,13 @@ namespace ClosedXML.Excel
             ranges.Add(rangeToAdd);
             return Add(ranges);
         }
+
         public IXLRanges Add(IXLRange range)
         {
-            var ranges = new XLRanges {range};
+            var ranges = new XLRanges { range };
             return Add(ranges);
         }
+
         public IXLRanges Add(IXLRanges ranges)
         {
             ranges.ForEach(r => _rangeList.Add(r.ToString()));
@@ -79,23 +91,26 @@ namespace ClosedXML.Excel
         {
             _namedRanges.Delete(Name);
         }
+
         public void Clear()
         {
             _rangeList.Clear();
         }
+
         public void Remove(String rangeAddress)
         {
             _rangeList.Remove(rangeAddress);
         }
+
         public void Remove(IXLRange range)
         {
             _rangeList.Remove(range.ToString());
         }
+
         public void Remove(IXLRanges ranges)
         {
             ranges.ForEach(r => _rangeList.Remove(r.ToString()));
         }
-
 
         public override string ToString()
         {
@@ -125,12 +140,14 @@ namespace ClosedXML.Excel
             RefersTo = range;
             return this;
         }
+
         public IXLNamedRange SetRefersTo(IXLRangeBase range)
         {
             _rangeList.Clear();
             _rangeList.Add(range.RangeAddress.ToStringFixed(XLReferenceStyle.A1, true));
             return this;
         }
+
         public IXLNamedRange SetRefersTo(IXLRanges ranges)
         {
             _rangeList.Clear();
