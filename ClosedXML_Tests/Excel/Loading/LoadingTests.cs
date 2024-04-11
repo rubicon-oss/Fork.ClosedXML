@@ -65,6 +65,8 @@ namespace ClosedXML_Tests.Excel
         [TestCase("Beispiel Dynamischer Druckbereich_Workaround.xlsx")]
         [TestCase("PrintareaReferencingMissingDefinedName.xlsx")]
         [TestCase("PrintareaReferencingMissingSheet.xlsx")]
+        [TestCase("TF8.xlsx")]
+        [TestCase("TF9.xlsx")]
         public void CanLoadAndSavePrintArea(string file)
         {
             Assert.Multiple(() =>

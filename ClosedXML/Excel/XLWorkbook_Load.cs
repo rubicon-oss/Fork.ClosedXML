@@ -1099,10 +1099,14 @@ namespace ClosedXML.Excel
                         {
                             var worksheet = GetWorksheetFromSheetIdOrExpression(definedName.LocalSheetId, expression);
 
-                            if (expression.Expression is XObjectExpression && worksheet.Range(expression.ExpressionString) != null)
-                                worksheet.PageSetup.PrintAreas.Add(expression.ExpressionString);
+                            var printAreas = worksheet == null ?
+                                Worksheets.First().Workbook.PageOptions.PrintAreas :
+                                worksheet.PageSetup.PrintAreas;
+
+                            if (expression.Expression is XObjectExpression && worksheet?.Range(expression.ExpressionString) != null)
+                                printAreas.Add(expression.ExpressionString);
                             else
-                                worksheet.PageSetup.PrintAreas.Add(expression);
+                                printAreas.Add(expression);
                         }
                     }
                 }
@@ -1154,9 +1158,19 @@ namespace ClosedXML.Excel
 
                 // TODO: There is probably a better way to do this by traversing the Expression but unfortunately the CellRangeReference for a formula has no valid Ranges (which is correct but not helpfull here).
                 string sheetName, sheetArea;
-                ParseReference(expression.ExpressionString, out sheetName, out sheetArea);
+                try
+                {
+                    ParseReference(expression.ExpressionString, out sheetName, out sheetArea);
 
-                return WorksheetsInternal.Worksheet(sheetName);
+                    if (string.IsNullOrEmpty(sheetName))
+                        return null;
+
+                    return WorksheetsInternal.Worksheet(sheetName);
+                }
+                catch
+                {
+                    return null;
+                }
             }
             else
             {
@@ -1237,7 +1251,6 @@ namespace ClosedXML.Excel
             }
             else
             {
-                // TODO: add test case with ! in sheet name
                 sheetName = item.Substring(0, item.LastIndexOf('!'));
                 sheetArea = item.Substring(item.LastIndexOf('!'));
             }

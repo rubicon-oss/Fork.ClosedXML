@@ -190,6 +190,8 @@
     <EmbeddedResource Include="Resource\TryToLoad\TF3 Dynamischer Druckbereich(C_INDIRECT).xlsx" />
     <EmbeddedResource Include="Resource\TryToLoad\PrintareaReferencingMissingDefinedName.xlsx" />
     <EmbeddedResource Include="Resource\TryToLoad\PrintareaReferencingMissingSheet.xlsx" />
+    <EmbeddedResource Include="Resource\TryToLoad\TF9.xlsx" />
+    <EmbeddedResource Include="Resource\TryToLoad\TF8.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resource\Images\ImageHandling.png" />
