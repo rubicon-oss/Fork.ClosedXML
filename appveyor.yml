@@ -1,4 +1,4 @@
-version: 0.104.1.{build}
+version: 0.104.2.{build}
 
 image: Visual Studio 2022
 
@@ -20,11 +20,11 @@ init:
       $env:fileVersion = $env:APPVEYOR_BUILD_VERSION -replace '(\d+)\.(\d+)\.([^.]+)\.(\d+)', '$1.$2.999.$4'
       $env:productVersion = $env:fileVersion
     }
-    
+
     Update-AppveyorBuild -Version $env:fileVersion
-    
+
     Write-Host $env:fileVersion $env:productVersion
-    
+
     Write-Host $env:APPVEYOR_REPO_TAG $env:APPVEYOR_REPO_TAG_NAME
 
 
@@ -38,7 +38,7 @@ dotnet_csproj:
   informational_version: '$(productVersion)'
 
 # platform: Any CPU
-configuration : 
+configuration :
 - Release
 
 before_build:
