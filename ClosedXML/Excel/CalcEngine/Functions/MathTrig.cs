@@ -3,6 +3,7 @@ using ClosedXML.Excel.CalcEngine.Functions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -697,38 +698,16 @@ namespace ClosedXML.Excel.CalcEngine
 
         private static AnyValue Product(CalcContext ctx, Span<AnyValue> args)
         {
-            double? product = null;
-            foreach (var arg in args)
-            {
-                if (arg.TryPickScalar(out var scalar, out var collection))
-                {
-                    if (scalar.IsBlank)
-                        continue;
+            return Product(ctx, args, TallyNumbers.WithoutScalarBlank);
+        }
 
-                    // Scalars are converted to number.
-                    if (!scalar.ToNumber(ctx.Culture).TryPickT0(out var number, out var error))
-                        return error;
+        private static AnyValue Product(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        {
+            var result = tally.Tally(ctx, args, new ProductState(1, false));
+            if (!result.TryPickT0(out var state, out var error))
+                return error;
 
-                    product = product.HasValue ? product.Value * number : number;
-                }
-                else
-                {
-                    var valuesIterator = collection.TryPickT0(out var array, out var reference)
-                        ? array
-                        : ctx.GetNonBlankValues(reference);
-                    foreach (var value in valuesIterator)
-                    {
-                        if (value.TryPickError(out var error))
-                            return error;
-
-                        // For arrays and references, only the number type is used. Other types are ignored.
-                        if (value.TryPickNumber(out var number))
-                            product = product.HasValue ? product.Value * number : number;
-                    }
-                }
-            }
-
-            return product ?? 0;
+            return state.HasValues ? state.Product : 0;
         }
 
         private static object Quotient(List<Expression> p)
@@ -867,68 +846,59 @@ namespace ClosedXML.Excel.CalcEngine
             return Math.Sqrt(Math.PI * num);
         }
 
-        private static AnyValue Subtotal(CalcContext ctx, double number, List<Reference> p)
+        private static AnyValue Subtotal(CalcContext ctx, double number, AnyValue[] fnArgs)
         {
-            var cellsWithoutSubtotal = p.SelectMany(reference => ctx.GetNonBlankCells(reference))
-                .Where(cell =>
-                {
-                    if (!cell.HasFormula)
-                        return true;
-
-                    return !ctx.CalcEngine.Parse(cell.FormulaA1).Flags.HasFlag(FormulaFlags.HasSubtotal);
-                })
-                .Select(cell => new Expression(cell.Value));
-
-            var fId = (int)number;
-            var tally = new Tally(cellsWithoutSubtotal);
-
-            return fId switch
+            var funcNumber = number switch
             {
-                1 => tally.Average(),
-                2 => tally.Count(true),
-                3 => tally.Count(false),
-                4 => tally.Max(),
-                5 => tally.Min(),
-                6 => tally.Product(),
-                7 => tally.Std(),
-                8 => tally.StdP(),
-                9 => tally.Sum(),
-                10 => tally.Var(),
-                11 => tally.VarP(),
-                _ => throw new ArgumentException("Function not supported."),
+                >= 1 and < 12 => (int)number,
+                >= 101 and < 112 => (int)number,
+                _ => -1,
+            };
+
+            if (funcNumber < 0)
+                return XLError.IncompatibleValue;
+
+            var args = fnArgs.AsSpan();
+            return funcNumber switch
+            {
+                1 => Statistical.Average(ctx, args, TallyNumbers.Subtotal10),
+                2 => Statistical.Count(ctx, args, TallyNumbers.Subtotal10),
+                3 => Statistical.Count(ctx, args, TallyAll.Subtotal10),
+                4 => Statistical.Max(ctx, args, TallyNumbers.Subtotal10),
+                5 => Statistical.Min(ctx, args, TallyNumbers.Subtotal10),
+                6 => Product(ctx, args, TallyNumbers.Subtotal10),
+                7 => Statistical.StDev(ctx, args, TallyNumbers.Subtotal10),
+                8 => Statistical.StDevP(ctx, args, TallyNumbers.Subtotal10),
+                9 => Sum(ctx, args, TallyNumbers.Subtotal10),
+                10 => Statistical.Var(ctx, args, TallyNumbers.Subtotal10),
+                11 => Statistical.VarP(ctx, args, TallyNumbers.Subtotal10),
+                101 => Statistical.Average(ctx, args, TallyNumbers.Subtotal100),
+                102 => Statistical.Count(ctx, args, TallyNumbers.Subtotal100),
+                103 => Statistical.Count(ctx, args, TallyAll.Subtotal100),
+                104 => Statistical.Max(ctx, args, TallyNumbers.Subtotal100),
+                105 => Statistical.Min(ctx, args, TallyNumbers.Subtotal100),
+                106 => Product(ctx, args, TallyNumbers.Subtotal100),
+                107 => Statistical.StDev(ctx, args, TallyNumbers.Subtotal100),
+                108 => Statistical.StDevP(ctx, args, TallyNumbers.Subtotal100),
+                109 => Sum(ctx, args, TallyNumbers.Subtotal100),
+                110 => Statistical.Var(ctx, args, TallyNumbers.Subtotal100),
+                111 => Statistical.VarP(ctx, args, TallyNumbers.Subtotal100),
+                _ => throw new UnreachableException(),
             };
         }
 
         private static AnyValue Sum(CalcContext ctx, Span<AnyValue> args)
         {
-            var sum = 0.0;
-            foreach (var arg in args)
-            {
-                if (arg.TryPickScalar(out var scalar, out var collection))
-                {
-                    var conversionResult = scalar.ToNumber(ctx.Culture);
-                    if (!conversionResult.TryPickT0(out var number, out var error))
-                        return error;
+            return Sum(ctx, args, TallyNumbers.Default);
+        }
 
-                    sum += number;
-                }
-                else
-                {
-                    var valuesIterator = collection.TryPickT0(out var array, out var reference)
-                        ? array
-                        : reference.GetCellsValues(ctx);
-                    foreach (var value in valuesIterator)
-                    {
-                        // collections ignore strings and logical, only numbers (and errors) allowed
-                        if (value.TryPickNumber(out var number))
-                            sum += number;
-                        else if (value.TryPickError(out var error))
-                            return error;
-                    }
-                }
-            }
+        private static AnyValue Sum(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        {
+            var result = tally.Tally(ctx, args, new SumState(0));
+            if (!result.TryPickT0(out var state, out var error))
+                return error;
 
-            return sum;
+            return state.Sum;
         }
 
         private static object SumIf(List<Expression> p)
@@ -1144,12 +1114,22 @@ namespace ClosedXML.Excel.CalcEngine
             return (double)truncated / scaling;
         }
 
+        private readonly record struct SumState(double Sum) : ITallyState<SumState>
+        {
+            public SumState Tally(double number) => new(Sum + number);
+        }
+
         private readonly record struct SumSqState(double Sum) : ITallyState<SumSqState>
         {
             public SumSqState Tally(double number)
             {
                 return new SumSqState(Sum + number * number);
             }
+        }
+
+        private readonly record struct ProductState(double Product, bool HasValues) : ITallyState<ProductState>
+        {
+            public ProductState Tally(double number) => new(Product * number, true);
         }
     }
 }

@@ -172,60 +172,24 @@ namespace ClosedXML.Excel.CalcEngine
 
         private static AnyValue Count(CalcContext ctx, Span<AnyValue> args)
         {
+            return Count(ctx, args, TallyNumbers.IgnoreErrors);
+        }
+
+        internal static AnyValue Count(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        {
             if (args.Length < 1)
                 return XLError.IncompatibleValue;
 
-            var count = 0;
-            foreach (var arg in args)
-            {
-                if (arg.TryPickScalar(out var scalar, out var collection))
-                {
-                    // Scalars are converted to number.
-                    if (scalar.ToNumber(ctx.Culture).TryPickT0(out _, out _))
-                        count++;
-                }
-                else
-                {
-                    var valuesIterator = collection.TryPickT0(out var array, out var reference)
-                        ? array
-                        : ctx.GetNonBlankValues(reference);
-                    foreach (var value in valuesIterator)
-                    {
-                        // For arrays and references, only the number type is used. Other types are ignored.
-                        if (value.TryPickNumber(out var number))
-                            count++;
-                    }
-                }
-            }
-
-            return count;
-        }
-
-        private static AnyValue CountA(CalcContext ctx, Span<AnyValue> values)
-        {
-            var result = values.Aggregate(
-                ctx,
-                initialValue: 0,
-                noElementsResult: 0,
-                collectionFilter: value =>
-                {
-                    // Blanks in collections (i.e. references, because arrays can't contain blanks)
-                    // are not counted and thus are filtered out.
-                    if (value.IsBlank)
-                        return false;
-
-                    // Everything else is counted, including errors.
-                    return true;
-                },
-                // Any scalar value (including errors, including blank, if is passed directly as
-                // an argument) is counted as one non-empty element.
-                convert: (_, _) => 1,
-                aggregate: static (acc, cur) => acc + cur);
-
-            if (!result.TryPickT0(out var nonEmptyCount, out var error))
+            var result = tally.Tally(ctx, args, new CountState(0));
+            if (!result.TryPickT0(out var state, out var error))
                 return error;
 
-            return nonEmptyCount;
+            return state.Count;
+        }
+
+        private static AnyValue CountA(CalcContext ctx, Span<AnyValue> args)
+        {
+            return Count(ctx, args, TallyAll.IncludeErrors);
         }
 
         private static object CountBlank(List<Expression> p)
@@ -363,7 +327,7 @@ namespace ClosedXML.Excel.CalcEngine
             return Max(ctx, args, TallyNumbers.Default);
         }
 
-        private static AnyValue Max(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        internal static AnyValue Max(CalcContext ctx, Span<AnyValue> args, ITally tally)
         {
             var result = tally.Tally(ctx, args, new MaxState());
             if (!result.TryPickT0(out var state, out var error))
@@ -407,7 +371,7 @@ namespace ClosedXML.Excel.CalcEngine
             return Min(ctx, args, TallyNumbers.Default);
         }
 
-        private static AnyValue Min(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        internal static AnyValue Min(CalcContext ctx, Span<AnyValue> args, ITally tally)
         {
             var result = tally.Tally(ctx, args, new MinState());
 
@@ -431,7 +395,7 @@ namespace ClosedXML.Excel.CalcEngine
             return StDev(ctx, args, TallyNumbers.Default);
         }
 
-        private static AnyValue StDev(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        internal static AnyValue StDev(CalcContext ctx, Span<AnyValue> args, ITally tally)
         {
             if (!GetSquareDiffSum(ctx, args, tally).TryPickT0(out var squareDiff, out var error))
                 return error;
@@ -452,7 +416,7 @@ namespace ClosedXML.Excel.CalcEngine
             return StDevP(ctx, args, TallyNumbers.Default);
         }
 
-        private static AnyValue StDevP(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        internal static AnyValue StDevP(CalcContext ctx, Span<AnyValue> args, ITally tally)
         {
             if (!GetSquareDiffSum(ctx, args, tally).TryPickT0(out var squareDiff, out var error))
                 return error;
@@ -473,7 +437,7 @@ namespace ClosedXML.Excel.CalcEngine
             return Var(ctx, args, TallyNumbers.Default);
         }
 
-        private static AnyValue Var(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        internal static AnyValue Var(CalcContext ctx, Span<AnyValue> args, ITally tally)
         {
             if (!GetSquareDiffSum(ctx, args, tally).TryPickT0(out var squareDiff, out var error))
                 return error;
@@ -494,7 +458,7 @@ namespace ClosedXML.Excel.CalcEngine
             return VarP(ctx, args, TallyNumbers.Default);
         }
 
-        private static AnyValue VarP(CalcContext ctx, Span<AnyValue> args, ITally tally)
+        internal static AnyValue VarP(CalcContext ctx, Span<AnyValue> args, ITally tally)
         {
             if (!GetSquareDiffSum(ctx, args, tally).TryPickT0(out var squareDiff, out var error))
                 return error;
@@ -633,6 +597,11 @@ namespace ClosedXML.Excel.CalcEngine
                 Values.Add(number);
                 return new ValuesState(Values);
             }
+        }
+
+        private readonly record struct CountState(int Count) : ITallyState<CountState>
+        {
+            public CountState Tally(double number) => new(Count + 1);
         }
     }
 }

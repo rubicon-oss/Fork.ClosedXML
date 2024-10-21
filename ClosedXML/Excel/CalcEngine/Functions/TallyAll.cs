@@ -6,29 +6,58 @@ namespace ClosedXML.Excel.CalcEngine.Functions;
 /// <summary>
 /// A tally function for *A functions (e.g. AverageA, MinA, MaxA). The behavior is buggy in Excel,
 /// because they doesn't count logical values in array, but do count them in reference ¯\_(ツ)_/¯.
-///
-/// <list type="bullet">
-///   <item>Scalar values are converted to number, conversion might lead to errors.</item>
-///   <item>Array values ignore logical and text (unless <c>ignoreArrayText</c> is <c>false</c>).</item>
-///   <item>Reference values include logical, text is evaluated as zero.</item>
-/// </list>
-/// Any error is propagated.
 /// </summary>
 internal class TallyAll : ITally
 {
     private readonly bool _ignoreArrayText;
+    private readonly bool _includeErrors;
+    private readonly Func<CalcContext, Reference, IEnumerable<ScalarValue>> _getNonBlankValues;
 
-    /// <inheritdoc cref="TallyAll"/>
-    /// <remarks>This tally ignores text in arrays.</remarks>
+    /// <summary>
+    /// <list type="bullet">
+    ///   <item>Scalar values are converted to number, conversion might lead to errors.</item>
+    ///   <item>Array values includes numbers, ignore logical and text.</item>
+    ///   <item>Reference values include logical, number and text is considered a zero.</item>
+    /// </list>
+    /// Errors are propagated.
+    /// </summary>
     internal static readonly ITally Default = new TallyAll(ignoreArrayText: true);
 
-    /// <inheritdoc cref="TallyAll"/>
-    /// <remarks>This tally counts text in arrays as <c>0</c>.</remarks>
+    /// <summary>
+    /// <list type="bullet">
+    ///   <item>Scalar values are converted to number, conversion might lead to errors.</item>
+    ///   <item>Array values includes numbers, text is considered a zero and logical values are ignored.</item>
+    ///   <item>Reference values include logical, number and text is considered a zero.</item>
+    /// </list>
+    /// Errors are propagated.
+    /// </summary>
     internal static readonly ITally WithArrayText = new TallyAll(ignoreArrayText: false);
 
-    private TallyAll(bool ignoreArrayText)
+    /// <summary>
+    /// <list type="bullet">
+    ///   <item>Scalar values are converted to number, conversion might lead to errors.</item>
+    ///   <item>Array values includes numbers, text is considered a zero and logical values are ignored.</item>
+    ///   <item>Reference values include logical, number and text is considered a zero.</item>
+    /// </list>
+    /// Errors are considered zero and are <strong>not</strong> propagated.
+    /// </summary>
+    internal static readonly ITally IncludeErrors = new TallyAll(includeErrors: true);
+
+    /// <summary>
+    /// Tally algorithm for <c>SUBTOTAL</c> functions 1..11.
+    /// </summary>
+    internal static readonly ITally Subtotal10 = new TallyAll(getNonBlankValues: static (ctx, reference) => ctx.GetFilteredNonBlankValues(reference, "SUBTOTAL"));
+
+    /// <summary>
+    /// Tally algorithm for <c>SUBTOTAL</c> functions 101..111.
+    /// </summary>
+    internal static readonly ITally Subtotal100 = new TallyAll(getNonBlankValues: static (ctx, reference) => ctx.GetFilteredNonBlankValues(reference, "SUBTOTAL", skipHiddenRows: true));
+
+    private TallyAll(bool ignoreArrayText = true, bool includeErrors = false, Func<CalcContext, Reference, IEnumerable<ScalarValue>>? getNonBlankValues = null)
     {
         _ignoreArrayText = ignoreArrayText;
+        _includeErrors = includeErrors;
+        _getNonBlankValues = getNonBlankValues ?? (static (ctx, reference) => ctx.GetNonBlankValues(reference));
     }
 
     public OneOf<T, XLError> Tally<T>(CalcContext ctx, Span<AnyValue> args, T initialState)
@@ -41,7 +70,12 @@ internal class TallyAll : ITally
             {
                 // Scalars are converted to number.
                 if (!scalar.ToNumber(ctx.Culture).TryPickT0(out var number, out var error))
-                    return error;
+                {
+                    if (!_includeErrors)
+                        return error;
+
+                    number = 0;
+                }
 
                 // All scalars are counted
                 state = state.Tally(number);
@@ -57,7 +91,7 @@ internal class TallyAll : ITally
                 }
                 else
                 {
-                    valuesIterator = ctx.GetNonBlankValues(reference);
+                    valuesIterator = _getNonBlankValues(ctx, reference);
                     isArray = false;
                 }
                 foreach (var value in valuesIterator)
@@ -79,7 +113,10 @@ internal class TallyAll : ITally
                     }
                     else if (value.TryPickError(out var error))
                     {
-                        return error;
+                        if (!_includeErrors)
+                            return error;
+
+                        state = state.Tally(0);
                     }
                 }
             }

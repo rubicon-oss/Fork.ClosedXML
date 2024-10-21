@@ -1661,27 +1661,42 @@ namespace ClosedXML.Tests.Excel.CalcEngine
         }
 
         [Test]
+        public void Subtotal()
+        {
+            using var wb = new XLWorkbook();
+            var ws = wb.AddWorksheet();
+
+            // Non-existent functions return error
+            Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("SUBTOTAL(0, A1)"));
+            Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("SUBTOTAL(0.9, A1)"));
+            Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("SUBTOTAL(12, A1)"));
+            Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("SUBTOTAL(100.9, A1)"));
+            Assert.AreEqual(XLError.IncompatibleValue, ws.Evaluate("SUBTOTAL(112, A1)"));
+        }
+
+        [Test]
         public void SubtotalAverage()
         {
             using var wb = new XLWorkbook();
             var ws = wb.AddWorksheet();
             ws.Cell("A1").Value = 2;
             ws.Cell("A2").Value = 3;
-            ws.Cell("A3").Value = "A";
+            ws.Cell("A3").FormulaA1 = "SUBTOTAL(1,A1,A2)";
+            ws.Cell("A4").Value = "A";
 
-            object actual = ws.Evaluate("SUBTOTAL(1,A1,A2)");
-            Assert.AreEqual(2.5, actual);
+            Assert.AreEqual(2.5, ws.Cell("A3").Value);
+            Assert.AreEqual(2.5, ws.Evaluate("SUBTOTAL(1, A1:A4)"));
 
-            actual = ws.Evaluate(@"SUBTOTAL(1,A1,A2,A3)");
-            Assert.AreEqual(2.5, actual);
+            ws.Row(2).Hide();
+            Assert.AreEqual(2, ws.Evaluate("SUBTOTAL(101, A1:A4)"));
         }
 
         [Test]
-        public void SubtotalCalc()
+        public void Subtotal10Calc()
         {
-            var wb = new XLWorkbook();
+            using var wb = new XLWorkbook();
             var ws = wb.AddWorksheet();
-            ws.DefinedNames.Add("subtotalrange", "A37:A38");
+            ws.DefinedNames.Add("subtotalrange", "$A$37:$A$38");
 
             ws.Cell("A1").Value = 2;
             ws.Cell("A2").Value = 4;
@@ -1745,109 +1760,220 @@ namespace ClosedXML.Tests.Excel.CalcEngine
         }
 
         [Test]
+        public void Subtotal100Calc()
+        {
+            using var wb = new XLWorkbook();
+            var ws = wb.AddWorksheet();
+
+            ws.Cell("A1").Value = 1;
+            ws.Cell("B1").Value = 2;
+            ws.Cell("C1").Value = Blank.Value;
+            ws.Cell("A2").Value = "A";
+            ws.Cell("B2").Value = 4;
+            ws.Cell("C2").Value = 8;
+            ws.Cell("A3").FormulaA1 = "SUBTOTAL(109, A1:A2)";
+            ws.Cell("B3").FormulaA1 = "SUBTOTAL(109, B1:B2)";
+            ws.Cell("C3").FormulaA1 = "SUBTOTAL(109, C1:C2)";
+            ws.Cell("A4").Value = 16;
+            ws.Cell("B4").Value = 32;
+            ws.Cell("C4").Value = 64;
+            ws.Cell("A5").Value = 128;
+            ws.Cell("B5").Value = 256;
+            ws.Cell("C5").Value = 512;
+            ws.Cell("A6").FormulaA1 = "SUBTOTAL(109, A1:A5)";
+            ws.Cell("B6").FormulaA1 = "SUBTOTAL(109, B1:B5)";
+            ws.Cell("C6").FormulaA1 = "SUBTOTAL(109, C1:C5)";
+
+            ws.Row(2).Hide();
+            ws.Row(5).Hide();
+
+            Assert.AreEqual(1, ws.Cell("A3").Value);
+            Assert.AreEqual(2, ws.Cell("B3").Value);
+            Assert.AreEqual(0, ws.Cell("C3").Value);
+            Assert.AreEqual(17, ws.Cell("A6").Value);
+            Assert.AreEqual(34, ws.Cell("B6").Value);
+            Assert.AreEqual(64, ws.Cell("C6").Value);
+        }
+
+        [Test]
         public void SubtotalCount()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "A");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(2,A1:A3)";
 
-            var actual = ws.Evaluate("SUBTOTAL(2,A1:A2)");
-            Assert.AreEqual(2, actual);
+            Assert.AreEqual(2, ws.Cell("A4").Value);
+            Assert.AreEqual(1, ws.Evaluate("SUBTOTAL(2,A2:A4)"));
 
-            actual = ws.Evaluate(@"SUBTOTAL(2,A2:A3)");
-            Assert.AreEqual(1, actual);
+            ws.Row(2).Hide();
+            Assert.AreEqual(1, ws.Evaluate("SUBTOTAL(102,A1:A4)"));
         }
 
         [Test]
         public void SubtotalCountA()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = string.Empty;
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(3,A1,A2,A3)";
 
-            var actual = ws.Evaluate("SUBTOTAL(3,A1,A2)");
-            Assert.AreEqual(2.0, actual);
+            Assert.AreEqual(3, ws.Cell("A4").Value);
+            Assert.AreEqual(3, ws.Evaluate("SUBTOTAL(3,A1:A4)"));
 
-            actual = ws.Evaluate(@"SUBTOTAL(3,A3,A2)");
-            Assert.AreEqual(1.0, actual);
+            ws.Row(1).Hide();
+            Assert.AreEqual(2, ws.Evaluate("SUBTOTAL(103,A1:A4)"));
         }
 
         [Test]
         public void SubtotalMax()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "A");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(4,A1,A2,A3) + 10";
 
-            var actual = ws.Evaluate(@"SUBTOTAL(4,A1:A3)");
-            Assert.AreEqual(3.0, actual);
+            Assert.AreEqual(13, ws.Cell("A4").Value);
+            Assert.AreEqual(3, ws.Evaluate("SUBTOTAL(4,A1:A4)"));
+
+            ws.Cell("A5").Value = 2.5;
+            ws.Row(2).Hide();
+            Assert.AreEqual(2.5, ws.Evaluate("SUBTOTAL(104,A1:A5)"));
         }
 
         [Test]
         public void SubtotalMin()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "A");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(5,A1,A2,A3) - 10";
 
-            var actual = ws.Evaluate(@"SUBTOTAL(5,A1:A3)");
-            Assert.AreEqual(2.0, actual);
+            Assert.AreEqual(-8, ws.Cell("A4").Value);
+            Assert.AreEqual(2, ws.Evaluate("SUBTOTAL(5,A1:A4)"));
+
+            ws.Cell("A5").Value = 2.5;
+            ws.Row(1).Hide();
+            Assert.AreEqual(2.5, ws.Evaluate("SUBTOTAL(105,A1:A5)"));
         }
 
         [Test]
         public void SubtotalProduct()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "A");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(6,A1,A2,A3)";
 
-            var actual = ws.Evaluate(@"Subtotal(6,A1,A2,A3)");
-            Assert.AreEqual(6.0, actual);
+            Assert.AreEqual(6, ws.Cell("A4").Value);
+            Assert.AreEqual(6, ws.Evaluate("SUBTOTAL(6,A1:A4)"));
+
+            ws.Row(2).Hide();
+            ws.Cell("A5").Value = 4;
+            Assert.AreEqual(8, ws.Evaluate("SUBTOTAL(106,A1:A5)"));
         }
 
         [Test]
+        [DefaultFloatingPointTolerance(XLHelper.Epsilon)]
         public void SubtotalStDev()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "A");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(7,A1:A3,A5)";
+            ws.Cell("A5").Value = 5;
 
-            var actual = ws.Evaluate(@"SUBTOTAL(7,A1:A3)");
-            Assert.IsTrue(Math.Abs(0.70710678118654757 - (double)actual) < XLHelper.Epsilon);
+            Assert.AreEqual(1.5275252316, (double)ws.Cell("A4").Value);
+            Assert.AreEqual(1.5275252316, (double)ws.Evaluate("SUBTOTAL(7,A1:A5)"));
+
+            ws.Row(2).Hide();
+            Assert.AreEqual(2.1213203435, (double)ws.Evaluate("SUBTOTAL(107,A1:A5)"));
         }
 
         [Test]
         public void SubtotalStDevP()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "A");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(8,A1,A2,A3)";
 
-            var actual = ws.Evaluate(@"SUBTOTAL(8,A1:A3)");
-            Assert.AreEqual(0.5, actual);
+            Assert.AreEqual(0.5, ws.Cell("A4").Value);
+            Assert.AreEqual(0.5, ws.Evaluate("SUBTOTAL(8,A1:A4)"));
+
+            ws.Row(2).Hide();
+            ws.Cell("A5").Value = 3;
+            Assert.AreEqual(0.5, ws.Evaluate("SUBTOTAL(108,A1:A5)"));
         }
 
         [Test]
         public void SubtotalSum()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "A");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(9,A1,A2,A3)";
 
-            var actual = ws.Evaluate(@"SUBTOTAL(9,A1:A3)");
-            Assert.AreEqual(5.0, actual);
+            Assert.AreEqual(5, ws.Cell("A4").Value);
+            Assert.AreEqual(5, ws.Evaluate("SUBTOTAL(9,A1:A4)"));
+
+            ws.Row(2).Hide();
+
+            Assert.AreEqual(2, ws.Evaluate("SUBTOTAL(109, A1:A4)"));
         }
 
         [Test]
         public void SubtotalVar()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 5, 4, "A", 8, 5);
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 5;
+            ws.Cell("A2").Value = 4;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").Value = 8;
+            ws.Cell("A5").Value = 5;
+            ws.Cell("A6").FormulaA1 = "SUBTOTAL(10,A1:A5)";
 
-            var actual = ws.Evaluate(@"SUBTOTAL(10,A1:A5)");
-            Assert.AreEqual(3, actual);
+            Assert.AreEqual(3, ws.Cell("A6").Value);
+            Assert.AreEqual(3, ws.Evaluate("SUBTOTAL(10,A1:A6)"));
+
+            ws.Row(1).Hide();
+            ws.Row(5).Hide();
+            Assert.AreEqual(8, ws.Evaluate("SUBTOTAL(110,A1:A6)"));
         }
 
         [Test]
         public void SubtotalVarP()
         {
             using var wb = new XLWorkbook();
-            var ws = AddWorksheetWithCellValues(wb, 2, 3, "A");
+            var ws = wb.AddWorksheet();
+            ws.Cell("A1").Value = 2;
+            ws.Cell("A2").Value = 3;
+            ws.Cell("A3").Value = "A";
+            ws.Cell("A4").FormulaA1 = "SUBTOTAL(11,A1,A2,A3)";
 
-            var actual = ws.Evaluate(@"SUBTOTAL(11,A1:A3)");
-            Assert.AreEqual(0.25, actual);
+            Assert.AreEqual(0.25, ws.Cell("A4").Value);
+            Assert.AreEqual(0.25, ws.Evaluate("SUBTOTAL(11,A1:A4)"));
+
+            ws.Row(2).Hide();
+            ws.Cell("A5").Value = 4;
+            Assert.AreEqual(1, ws.Evaluate("SUBTOTAL(111,A1:A5)"));
         }
 
         [Test]
@@ -2296,15 +2422,6 @@ namespace ClosedXML.Tests.Excel.CalcEngine
         {
             var actual = (double)XLWorkbook.EvaluateExpr($"TRUNC({input.ToString(CultureInfo.InvariantCulture)}, {digits})");
             Assert.AreEqual(expectedResult, actual);
-        }
-
-        private static IXLWorksheet AddWorksheetWithCellValues(XLWorkbook wb, params XLCellValue[] values)
-        {
-            var ws = wb.AddWorksheet();
-            for (var row = 1; row <= values.Length; ++row)
-                ws.Cell(row, 1).Value = values[row - 1];
-
-            return ws;
         }
     }
 }

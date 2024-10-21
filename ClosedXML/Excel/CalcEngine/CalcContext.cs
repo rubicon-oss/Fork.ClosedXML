@@ -2,6 +2,9 @@ using ClosedXML.Excel.CalcEngine.Exceptions;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
+using ClosedXML.Excel.CalcEngine.Visitors;
+using ClosedXML.Parser;
+using System;
 
 namespace ClosedXML.Excel.CalcEngine
 {
@@ -123,6 +126,66 @@ namespace ClosedXML.Excel.CalcEngine
             }
         }
 
+        internal IEnumerable<ScalarValue> GetFilteredNonBlankValues(Reference reference, string function, bool skipHiddenRows = false)
+        {
+            // Allocate one per call, because visitor holds info whether function was found in a formula.
+            var visitor = new FunctionVisitor(function);
+            foreach (var area in reference.Areas)
+            {
+                var sheet = area.Worksheet ?? Worksheet;
+                var range = XLSheetRange.FromRangeAddress(area);
+                var currentRow = 0;
+                var rowIsHidden = true;
+
+                // A value can be either in a non-empty value slice or a empty cell with a formula.
+                var enumerator = sheet.Internals.CellsCollection.ForValuesAndFormulas(range);
+                while (enumerator.MoveNext())
+                {
+                    var point = enumerator.Current;
+
+                    if (skipHiddenRows)
+                    {
+                        // If row changed, update hidden info about current row
+                        if (currentRow != point.Row)
+                        {
+                            currentRow = point.Row;
+                            rowIsHidden = sheet.Internals.RowsCollection.TryGetValue(currentRow, out var row) && row.IsHidden;
+                        }
+
+                        if (rowIsHidden)
+                            continue;
+                    }
+
+                    var formula = sheet.Internals.CellsCollection.FormulaSlice.Get(point);
+                    if (CallsFunction(formula, visitor))
+                        continue;
+
+                    var scalarValue = GetCellValue(sheet, point.Row, point.Column);
+                    if (!scalarValue.IsBlank)
+                        yield return scalarValue;
+                }
+            }
+
+            yield break;
+
+            static bool CallsFunction(XLCellFormula? formula, FunctionVisitor visitor)
+            {
+                if (formula is null)
+                    return false;
+
+                if (!formula.A1.Contains(visitor.FunctionName, StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                FormulaParser<object?, object?, FunctionVisitor>.CellFormulaA1(formula.A1, visitor, visitor);
+                if (!visitor.Found)
+                    return false;
+
+                // In order to reuse same visitor without allocation, clear the found flag.
+                visitor.Clear();
+                return true;
+            }
+        }
+
         /// <summary>
         /// This method should be used mostly for range arguments. If a value is scalar,
         /// return a single value enumerable.
@@ -139,30 +202,28 @@ namespace ClosedXML.Excel.CalcEngine
 
             if (collection.TryPickT0(out var array, out var reference))
                 return array.Where(x => !x.IsBlank);
-            
+
             return GetNonBlankValues(reference);
         }
 
-        /// <summary>
-        /// Get cells with a value for a reference.
-        /// </summary>
-        /// <param name="reference">Reference for which to return cells.</param>
-        /// <returns>A lazy (non-materialized) enumerable of cells with a value for the reference.</returns>
-        internal IEnumerable<XLCell> GetNonBlankCells(Reference reference)
+        private class FunctionVisitor : CollectVisitor<FunctionVisitor>
         {
-            // XLCells is not suitable here, e.g. it doesn't count a cell twice if it is in multiple areas
-            var nonBlankCells = Enumerable.Empty<XLCell>();
-            foreach (var area in reference.Areas)
+            public FunctionVisitor(string function)
             {
-                var areaCells = Worksheet.Internals.CellsCollection
-                    .GetCells(
-                        area.FirstAddress.RowNumber, area.FirstAddress.ColumnNumber,
-                        area.LastAddress.RowNumber, area.LastAddress.ColumnNumber,
-                        cell => !cell.IsEmpty());
-                nonBlankCells = nonBlankCells.Concat(areaCells);
+                FunctionName = function;
             }
 
-            return nonBlankCells;
+            internal string FunctionName { get; }
+
+            public bool Found { get; private set; }
+
+            public void Clear() => Found = false;
+
+            public override object? Function(FunctionVisitor context, SymbolRange range, ReadOnlySpan<char> functionName, IReadOnlyList<object?> arguments)
+            {
+                Found = Found || functionName.Equals(FunctionName.AsSpan(), StringComparison.OrdinalIgnoreCase);
+                return default;
+            }
         }
     }
 }
